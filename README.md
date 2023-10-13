@@ -14,5 +14,7 @@ Here are some ideas to get you started:
 - 😄 Pronouns: ...
 - ⚡ Fun fact: ...
 -->
+Anza Raja
 Education:
-Khoury College of Computer Science (2027)
+Khoury College of Computer Science 
+Expected graduation year: 2027

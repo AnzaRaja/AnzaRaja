@@ -1,0 +1,153 @@
+
+
+Experiment 1
+------------
+
+... paste and answer questions here ...
+# what is the initial value of the stack, i.e., %rsp [print $rsp]
+Initial Value of %rsp: %rsp = 0x7fffffffd728
+
+# GUESS: how many bytes were added to the stack, 
+  # i.e. compare the current value of %rsp to its value before the pushes [print $rsp]
+Hypothesis: I think 8 bytes are added to the stack at a time.
+Answer: A total of 24 bytes were added to the stack (since 3 pushes × 8 bytes each).
+After push $1, %rsp became 0x7fffffffd720.
+After push $2, %rsp became 0x7fffffffd718.
+After push $3, %rsp became 0x7fffffffd710.
+
+# GUESS: What is in %rax? [print $rax]
+Hypothesis: I think the value is 3 since the last pushed value was three
+Answer: %rax = 3
+
+# GUESS: What is on the top of the stack now, i.e., (%rsp)? [x $rsp]
+Hypothesis: I think 2 will be on top of the stack now because it was before 3.
+Answer: The top of the stack is 2. After pop %rax, %rsp now points to 0x7fffffffd718, which contains the value 2 (the second last value pushed).
+
+# GUESS: What is the item right below the top of the stack, i.e., 8(%rsp) [x $rsp+8]
+Hypothesis: I think it will be 1 since that was the first value pushed.
+Answer: The item below the top of the stack is 1.
+
+# drop the top of the stack
+After dropping the top of the stack this increases %rsp to 0x7fffffffd718, which drops the 3 from the stack.
+
+# GUESS: What is in %rbx? [print $rbx]
+Hypothesis: Since we're popping off the next value of the stack, I am assuming it is 2.
+Answer: %rbx = 2.
+
+2. 
+Experiment 2
+------------
+
+... paste and answer questions here ...
+main:
+  enter $0, $0
+
+  # OBSERVE: where does .text start? [p start_of_text]
+It starts at address 0x400536, which is the beginning of the main function.
+
+  # OBSERVE: where does .data start? [info var start_of_data]
+It starts at address 0x000000000060101c
+
+  # OBSERVE: addresses of the label in the .text section [p main]
+The address of the label main in the .text section is 0x400536.
+
+  # GUESS: What are the addresses of label in the .data section? [i var stuff]
+I’m not sure what the addresses of label in the .data section are but after doing the command I can see that the address of the label stuff in the .data section is 0x060101c which makes sense since stuff is at the beginning of the .data section
+
+  # GUESS: Contents of address pointed to by `stuff` [p (long) stuff]
+I am assuming the contents of the address pointed to by stuff are likely to be 0 by default.
+Answer: The contents of the address pointed to by stuff are 1 actually.
+
+  # GUESS: What's the 5th element of `stuff`? [x $rax + (4*8)]
+  mov $stuff, %rax
+I think the 5th element of stuff is likely to be 0.
+Answer: The 5th element of stuff is 0x41d78949 which makes sense because it accesses the 5th element of stuff.
+
+  # GUESS: How big is stuff? [p (long[8]) stuff]
+I am assuming the size of stuff is 8.
+Answer: The contents of stuff are {1, 2, 3, 4, 5, 6, 7, 8}, indicating it contains 8 elements.
+
+  leave
+  ret
+
+Experiment 3
+------------
+
+... paste and answer questions here ...
+dummy1:
+  # GUESS: What is on top of the stack? Here, compare with the value printed by `p $after_dummy` [x $rsp]
+Hypothesis: The value on top of the stack will be the return address to the instruction following the call dummy1 in main.
+Answer: The value on top of the stack is 0xf7a317e5
+
+  # GUESS: What is the address of the top of the stack, relative to the first observation in `main`? [p $rsp]
+  nop
+  ret
+Hypothesis: I’m not sure what the address at the top of the stack is but after printing it, I see that the address of the top of the stack is 0x7fffffffd718
+
+main:
+  enter $0, $0
+
+  # OBSERVE: Print the current stack pointer before calling `dummy1` [p $rsp]
+After printing the current stack pointer I got: 0x7fffffffd718
+
+  call dummy1
+
+after_dummy1:
+  # GUESS: What is the current stack pointer? [p $rsp]
+Hypothesis: I am not sure what the current stack pointer is but after printing it I see that the value of $rsp after dummy1 is: 0x7fffffffd710
+  
+  # OBSERVE: the address of the first instruction after returning from `dummy1` [p $after_dummy1 or p $rip]
+  # compare with what's on the stack after entering `dummy1`
+Hypothesis: The address of the first instruction after returning from dummy1 will match the address of after_dummy1.
+Answer: After returning from dummy1, the address of the first instruction is 0x40053c.
+  nop
+
+  leave
+  ret
+
+Experiment 4
+------------
+
+... paste and answer questions here ...
+dummy2:
+  # state of rbp/rsp before enter sets up the stack frame
+  # [p $rsp]
+  # [p $rbp]
+Hypothesis: Before enter: $rsp will have the initial stack pointer value, and $rbp will have the previous base pointer value.
+Answer: $rsp = 0x7fffffffd718 and $rbp = 0x400550
+
+  nop
+
+  enter $0, $0
+
+  # GUESS: What is the state of rbp/rsp after stack frame is set up?
+  # [p $rsp]
+  # [p $rbp]
+Hypothesis: The state of them will be the same.
+Answer: The $rbp is 0x7fffffffd710 and $rsp is 0x7fffffffd710
+  nop
+  
+  leave
+
+  # GUESS: What is the state of rbp/rsp after the stack frame is destroyed?
+  # [p $rsp]
+  # [p $rbp]
+  nop
+Hypothesis: I am not sure what the value will be after the stack frame is destroyed but I am assuming it will be the same as the initial value.
+  Answer: $rsp = 0x7fffffffd708 and $rbp = 0x7fffffffd710
+
+  ret
+
+main:
+  enter $0, $0
+
+  call dummy2
+
+  leave
+  ret
+
+Experiment 4 Question 5: My updated hypotheses:
+For 8 bytes:After enter, rsp should decrease by 8 bytes, and rbp should equal the previous rsp value.
+For 16 bytes:After enter, rsp should decrease by 16 bytes, and rbp should equal the previous rsp value.
+For 32 bytes:After enter, rsp should decrease by 32 bytes, and rbp should equal the previous rsp value.
+

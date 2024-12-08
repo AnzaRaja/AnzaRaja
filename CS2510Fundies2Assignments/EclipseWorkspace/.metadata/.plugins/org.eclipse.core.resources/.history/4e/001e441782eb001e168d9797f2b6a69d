@@ -1,0 +1,121 @@
+import java.util.ArrayList;
+import java.util.Iterator;
+import tester.Tester;
+
+// to represent a pair
+class Pair<L, R> {
+  L left;
+  R right;
+
+  Pair(L left, R right) {
+    this.left = left;
+    this.right = right;
+  }
+
+  // return an Iterator of pairs of corresponding elements. If the lists are of
+  // different sizes, an exception should be thrown.
+  <X, Y> Iterator<Pair<X, Y>> zipStrict(ArrayList<X> arr1, ArrayList<Y> arr2) {
+    if (arr1.size() != arr2.size()) {
+      throw new IllegalArgumentException("Lists are of different lengths");
+    }
+    return new Iterator<Pair<X, Y>>() {
+      int index = 0;
+
+      // Does this sequence (of items in the array list) have at least one more value?
+      public boolean hasNext() {
+        return index < arr1.size();
+      }
+
+      // get next item
+      public Pair<X, Y> next() {
+        if (!hasNext()) {
+          throw new IllegalStateException("No more elements in the iterator");
+        }
+
+        Pair<X, Y> pair = new Pair<>(arr1.get(index), arr2.get(index));
+        index++;
+        return pair;
+      }
+    };
+  }
+
+  // return an Iterator of pairs of corresponding elements. If the lists are of
+  // different sizes, only return pairs up to the size of the shorter one.
+  <X, Y> Iterator<Pair<X, Y>> zipLists(ArrayList<X> arr1, ArrayList<Y> arr2) {
+    ArrayList<Pair<X, Y>> pairs = new ArrayList<>();
+    Iterator<X> iter1 = arr1.iterator();
+    Iterator<Y> iter2 = arr2.iterator();
+
+    while (iter1.hasNext() && iter2.hasNext()) {
+      pairs.add(new Pair<>(iter1.next(), iter2.next()));
+    }
+
+    return pairs.iterator();
+  }
+
+  // produce a new Iterator that concatenates the two Iterators
+  <T> Iterator<T> concat(Iterator<T> iter1, Iterator<T> iter2) {
+    return new Iterator<T>() {
+      // Keep track of the current iterator
+      Iterator<T> current = iter1;
+
+      // Check if the current iterator has more elements
+      public boolean hasNext() {
+        while (!current.hasNext() && current != iter2) {
+          // Switch to the next iterator if the current one is exhausted
+          current = (current == iter1) ? iter2 : null;
+        }
+        return current != null && current.hasNext();
+      }
+
+      // Get the next element from the current iterator
+      public T next() {
+        if (!hasNext()) {
+          throw new IllegalStateException("No more elements in the iterator");
+        }
+        return current.next();
+      }
+    };
+  }
+
+}
+
+// utils class
+class IteratorUtils {
+
+  // Cycle through the elements of the iterable forever
+  <T> Iterator<T> cycle(Iterable<T> iterable) {
+    return new Iterator<T>() {
+      Iterator<T> iterator = iterable.iterator();
+
+      public boolean hasNext() {
+        return true; // Always true since the cycle never ends
+      }
+
+      public T next() {
+        if (!iterator.hasNext()) {
+          iterator = iterable.iterator(); // Start over from the beginning
+        }
+        return iterator.next();
+      }
+    };
+  }
+}
+
+// examples class
+class ExamplesPuzzle {
+
+  // Test the cycle method
+  void testCycle() {
+    Pair<Integer, String> pair = new Pair<>(1, "One");
+    List<Pair<Integer, String>> list = Arrays.asList(pair);
+
+    Iterator<Pair<Integer, String>> cycleIterator = pair.cycle(list);
+
+    // Test if the iterator cycles through the elements forever
+    for (int i = 0; i < 10; i++) {
+      cycleIterator.next(); // Print the next element
+    }
+  }
+
+}

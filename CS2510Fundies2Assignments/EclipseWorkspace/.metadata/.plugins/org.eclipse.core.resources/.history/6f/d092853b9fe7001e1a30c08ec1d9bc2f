@@ -1,0 +1,207 @@
+import java.util.ArrayList;
+import java.util.Arrays;
+//import tester.Tester;
+import java.util.Collections;
+import java.util.Comparator;
+
+import tester.Tester;
+
+// to represent an tree
+interface ITree {
+
+  // gets the total value of a node
+  public int calculateVal();
+
+  public boolean hasLetter(String letter, ArrayList<Boolean> list);
+
+  /*
+   * //does this string contain any letter not in the alphabet. 0 is false and 1
+   * is true. ArrayList<Boolean> encode(String word);
+   */
+}
+
+// to represent the Huffman class
+class Huffman {
+  ArrayList<String> letters;
+  ArrayList<Integer> frequencies;
+  ArrayList<ITree> pairs;
+
+  Huffman(ArrayList<String> letters, ArrayList<Integer> frequencies) {
+    if (letters.size() != frequencies.size()) {
+      throw new IllegalArgumentException("lists are different lengths");
+    }
+    else {
+      if (letters.size() < 2) {
+        throw new IllegalArgumentException("length of list of strings < 2");
+      }
+      else {
+        this.letters = letters;
+        this.frequencies = frequencies;
+      }
+    }
+
+    // to represent the current pairs
+    ArrayList<ITree> pairs = new ArrayList<ITree>();
+
+    // makes a list of pairs
+    for (int i = 0; i < letters.size(); i = i + 1) {
+      pairs.add(new Leaf(letters.get(i), frequencies.get(i)));
+    }
+
+    // sorts the list of pairs according to the frequency
+    Collections.sort(pairs, new SortByFrequency());
+
+    // builds the forest
+    //int idxVar = 1;
+    while (pairs.size() > 1) {
+      ITree currNode = new HuffmanNode(pairs.get(0).calculateVal() + pairs.get(1).calculateVal(),
+          pairs.get(0), pairs.get(1));
+      insert(currNode, pairs);
+      pairs.remove(0);
+      pairs.remove(0);
+    }
+    this.pairs = pairs;
+  }
+  
+
+  
+  // inserts the current pair into the tree
+  void insert(ITree currPair, ArrayList<ITree> tree) {
+    int i = 0;
+    while ( i < tree.size() && currPair.calculateVal() >= tree.get(i).calculateVal()) {
+      i = i + 1;
+    } tree.add(i, currPair);
+  }
+
+  // An ArrayList of booleans representing the encoding of the given string (0 =
+  // false, 1 = true)
+  ArrayList<Boolean> encode(String string) {
+    ArrayList<Boolean> currList = new ArrayList<Boolean>();
+    for (int i = 0; i < string.length(); i++) {
+      
+   // Find the index of the character in the alphabet
+      int index = letters.indexOf(string.substring(i, 1 + i));
+      if (index == -1) {
+          throw new IllegalArgumentException("Tried to encode " + string.substring(i, 1 + i) + " but that is not part of the language.");
+      } else {
+        pairs.get(0).hasLetter(string.substring(i, 1 + i), currList);
+      } 
+    }
+    return currList;
+  }
+}
+// while (string.indexOf()
+// check if all the letters can be found in the tree else throw exception
+// find the first letter in the string and get its path(boolean)
+// add it to the empty arrayList<boolean>
+// loop through the rest of the characters and get their path and add it to the arrayList<boolean>
+
+// sorts the arrayList by frequency in ascending order
+class SortByFrequency implements Comparator<ITree> {
+
+  public int compare(ITree t1, ITree t2) {
+    return t1.calculateVal() - t2.calculateVal();
+  }
+}
+
+// to represent a single node
+class HuffmanNode implements ITree {
+  int total;
+  ITree left;
+  ITree right;
+
+  HuffmanNode(int total, ITree left, ITree right) {
+    
+    this.left = left;
+    this.right = right;
+    this.total = this.calculateVal();
+  }
+
+  // gets the total value of a node
+  public int calculateVal() {
+    return this.left.calculateVal() + this.right.calculateVal();
+  }
+  
+  // has letter
+  public boolean hasLetter(String letter, ArrayList<Boolean> list) {
+    if (this.left.hasLetter(letter, list)) {
+      list.add(false);
+      return true;
+    } else if
+      (this.right.hasLetter(letter, list)) {
+       list.add(true);
+       return true;
+      } else {
+        return false;
+      }
+    }
+}
+
+// to represent a leaf
+class Leaf implements ITree {
+  String data;
+  int frequency;
+
+  Leaf(String data, int frequency) {
+    this.data = data;
+    this.frequency = frequency;
+  }
+
+  // gets the total value of a node
+  public int calculateVal() {
+    return this.frequency;
+  }
+
+  //has letter
+  public boolean hasLetter(String letter, ArrayList<Boolean> list) {
+    return this.data == letter;
+  }
+}
+
+// examples class
+class ExamplesTree {
+
+    // String list
+    ArrayList<String> stringList;
+    ArrayList<Integer> intList = new ArrayList<>();
+    Huffman huf1;
+    void initTestConditions() {
+      stringList = new ArrayList<>();
+      stringList.addAll(
+          Arrays.asList("a", "b", "c", "d", "e", "f"));
+      
+      intList.addAll(Arrays.asList(12, 45, 5, 13, 9, 16));
+      huf1 = new Huffman(stringList, intList);
+    }
+    
+
+    // Integer list
+
+    
+    
+    ITree leaf1 = new Leaf("z", 13);
+
+    // void initTestConditions() {
+    // }
+
+    // test for calculateVal
+
+
+    // test for insert
+    
+
+    // test for sortByFrequency
+    
+    // test for encode
+    
+    // test for decode
+    
+    boolean testInsert(Tester t) {
+      initTestConditions();
+      return t.checkExpect(this.huf1.pairs, new ArrayList<>());
+    } 
+}
+
+
+//Arrays.asList("a", "d", "c", "z", "t", "i", "s", "e", "j", "k", "l", "b", "f", "m", "r")
+//Arrays.asList(8, 4, 3, 18, 9, 7, 6, 12, 32, 17, 2, 1, 21, 5, 49)

@@ -1,0 +1,5 @@
+import tester.Tester;
+
+boolean containsSequence(ArrayList<Integer> source, ArrayList<Integer> sequence) {
+  
+}

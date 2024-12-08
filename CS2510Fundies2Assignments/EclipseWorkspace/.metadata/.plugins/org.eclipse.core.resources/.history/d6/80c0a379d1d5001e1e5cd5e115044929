@@ -1,0 +1,178 @@
+
+//import tester.Tester;
+import java.util.function.BiFunction;
+import java.util.function.Function;
+
+// to represent an arithmetic expression
+interface IArith {
+
+  <R> R accept(IArithVisitor<R> visitor);
+
+}
+
+class Const implements IArith {
+  double num;
+
+  Const(double num) {
+    this.num = num;
+  }
+
+  public <R> R accept(IArithVisitor<R> visitor) {
+    return visitor.visitConst(this);
+  }
+}
+
+class UnaryFormula implements IArith {
+  Function<Double, Double> func;
+  String name;
+  IArith child;
+
+  UnaryFormula(Function<Double, Double> func, String name, IArith child) {
+    this.func = func;
+    this.name = name;
+    this.child = child;
+  }
+
+  public <R> R accept(IArithVisitor<R> visitor) {
+    return visitor.visitUnaryFormula(this);
+  }
+}
+
+class BinaryFormula implements IArith {
+  BiFunction<Double, Double, Double> func;
+  String name;
+  IArith left;
+  IArith right;
+
+  BinaryFormula(BiFunction<Double, Double, Double> func, String name, IArith left, IArith right) {
+    this.func = func;
+    this.name = name;
+    this.left = left;
+    this.right = right;
+  }
+
+  public <R> R accept(IArithVisitor<R> visitor) {
+    return visitor.visitBinaryFormula(this);
+  }
+}
+
+// visits an IArith and evaluates the tree to a Double answer
+class EvalVisitor<R> implements IArithVisitor<Double> {
+
+  public Double apply(IArith t) {
+    return t.accept(this);
+  }
+
+  public Double visitConst(Const c) {
+    return c.num;
+  }
+
+  public Double visitUnaryFormula(UnaryFormula s) {
+    return s.func.apply(s.child.accept(this));
+  }
+
+  public Double visitBinaryFormula(BinaryFormula r) {
+    return r.func.apply(r.left.accept(this), r.right.accept(this));
+  }
+}
+
+// visits an IArith and produces a String showing the fully-parenthesized expression 
+// in Racket-like prefix notation
+class PrintVisitor implements IArithVisitor<String> {
+
+  public String apply(IArith t) {
+    return t.accept(this);
+  }
+
+  public String visitConst(Const c) {
+    return Double.toString(c.num);
+  }
+
+  public String visitUnaryFormula(UnaryFormula s) {
+    return "(" + s.name + " " + s.child.accept(this) + ")";
+  }
+
+  public String visitBinaryFormula(BinaryFormula r) {
+    return "(" + r.name + " (" + r.left.accept(this) + ") (" + r.right.accept(this) + "))";
+  }
+}
+
+// visits an IArith and produces another IArith, where every BinaryFormula in the tree has switched
+// its left and right fields
+class MirrorVisitor implements IArithVisitor<IArith> {
+
+  public IArith apply(IArith t) {
+    return t.accept(this);
+  }
+
+  public IArith visitConst(Const c) {
+    return c.accept(this);
+  }
+
+  public IArith visitUnaryFormula(UnaryFormula s) {
+    return s.accept(this);
+  }
+
+  public IArith visitBinaryFormula(BinaryFormula r) {
+    return null;
+  }
+}
+
+// binary formula plus
+class Plus implements BiFunction<Double, Double, Double> {
+  
+  public Double apply(Double t, Double u) {
+    return t + u;
+  } 
+}
+
+// binary formula minus
+class Minus implements BiFunction<Double, Double, Double> {
+
+  public Double apply(Double t, Double u) {
+    return t - u;
+  }  
+}
+
+// binary formula multiply
+class Mul implements BiFunction<Double, Double, Double> {
+
+  public Double apply(Double t, Double u) {
+    return t * u;
+  }
+}
+
+//binary formula divide
+class Div implements BiFunction<Double, Double, Double> {
+
+  public Double apply(Double t, Double u) {
+    return t / u;
+  }
+}
+
+// unary formula negate
+class Neg implements Function<Double, Double> {
+
+  public Double apply(Double t) {
+    return -1 * t;
+  }
+}
+
+// unary formula square
+class Sqr implements Function<Double, Double> {
+
+  public Double apply(Double t) {
+    return t * t;
+  }
+}
+
+//representing a visitor that visits an IArith and produces a result of type R
+interface IArithVisitor<R> extends Function<IArith, R> {
+  R visitConst(Const c);
+
+  R visitUnaryFormula(UnaryFormula s);
+
+  R visitBinaryFormula(BinaryFormula r);
+}
+
+

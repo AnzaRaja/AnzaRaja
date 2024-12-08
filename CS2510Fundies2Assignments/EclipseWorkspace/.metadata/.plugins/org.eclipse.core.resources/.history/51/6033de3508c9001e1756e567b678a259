@@ -1,0 +1,36 @@
+//import tester.Tester;
+
+// to represent a type of card
+interface ICard {
+  
+}
+
+class CreditCard implements ICard {
+  int cnum;
+  int year;
+  int  cvv;
+  String name;
+  
+  CreditCard(int cnum, int year, int cvv, String name) {
+    this.cnum = cnum;
+    this.year = year;
+    this.cvv = cvv;
+    this.name = name;
+  }  
+}
+
+class DebitCard implements ICard {
+  int cnum;
+  int year;
+  int cvv;
+  String name;
+  double balance;
+  
+  DebitCard(int cnum, int year, int cvv, String name, double balance) {
+    this.cnum = cnum;
+    this.year = year;
+    this.cvv = cvv;
+    this.name = name;
+    this.balance = balance;
+  }
+}

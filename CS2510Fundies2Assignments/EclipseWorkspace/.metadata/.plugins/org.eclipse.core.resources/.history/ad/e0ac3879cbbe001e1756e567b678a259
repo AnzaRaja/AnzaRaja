@@ -1,0 +1,264 @@
+
+//import tester.Tester;
+import javalib.funworld.WorldScene;
+
+//represents a list of words
+interface ILoWord {
+
+  // produces a new list, with words sorted in alphabetical order,
+  // treating all Strings as if they were given in all lower case.
+  ILoWord sort();
+
+  // determines whether this list of IWords has words sorted in alphabetical
+  // order,
+  // in a case-insensitive way.
+  boolean isSorted();
+
+  // takes this list of IWords and a given list of IWords, and produces a list
+  // where the first,
+  // third, fifth... elements are from this list, and the second, fourth, sixth...
+  // elements
+  // are from the given list.
+  ILoWord interleave(ILoWord IWords);
+
+  // merges this sorted list of IWords and a given sorted list of IWords, and
+  // produces a sorted
+  // list of IWords that contains all items in both original lists, including
+  // duplicates, treating
+  // all Strings as if they were given in all lower case.
+  ILoWord merge(ILoWord IWords);
+
+  // takes in a String of length 1 and produces an ILoWord where any active words
+  // in this ILoWord
+  // are reduced by removing the first letter only if the given string matches the
+  // first letter.
+  ILoWord checkAndReduce(String letter);
+
+  // takes in an IWord and produces an ILoWord that is like this ILoWord but with
+  // the given
+  // IWord added at the end.
+  ILoWord addToEnd(IWord IWord);
+
+  // produces an ILoWord with any IWords that have an empty string are filtered
+  // out.
+  ILoWord filterOutEmpties();
+
+  // takes in a WorldScene and draws all of the words in this ILoWord onto the
+  // given WorldScene
+  WorldScene draw(WorldScene WorldScene);
+
+}
+
+//represents an empty list of words
+class MtLoWord implements ILoWord {
+
+  /*- TEMPLATE
+  FIELDS:
+  
+  METHODS
+  ... this.sort() ...                                -- ILoWord
+  ... this.isSorted() ...                            -- boolean
+  ... this.interleave.(ILoWord IWords) ...           -- ILoWord
+  ... this.merge(ILoWord IWords) ...                 -- ILoWord
+  ... this.checkAndReduce(String letter) ...         -- ILoWord
+  ... this.addToEnd(Word IWord) ...                  -- ILoWord
+  ... this.filterOutEmpties() ...                    -- ILoWord
+  ... this.draw(WorldScene WorldScene) ...           -- WorldScene
+  */
+
+  // produces a new list, with words sorted in alphabetical order,
+  // treating all Strings as if they were given in all lower case.
+  public ILoWord sort() {
+    return this;
+  }
+
+  // determines whether this list of IWords has words sorted in alphabetical
+  // order,
+  // in a case-insensitive way.
+  public boolean isSorted() {
+    return true;
+  }
+
+  // takes this list of IWords and a given list of IWords, and produces a list
+  // where the first,
+  // third, fifth... elements are from this list, and the second, fourth, sixth...
+  // elements
+  // are from the given list.
+  public ILoWord interleave(ILoWord IWords) {
+    return this;
+  }
+
+  // merges this sorted list of IWords and a given sorted list of IWords, and
+  // produces a sorted
+  // list of IWords that contains all items in both original lists, including
+  // duplicates, treating
+  // all Strings as if they were given in all lower case.
+  public ILoWord merge(ILoWord IWords) {
+    return this;
+  }
+
+  // takes in a String of length 1 and produces an ILoWord where any active words
+  // in this ILoWord
+  // are reduced by removing the first letter only if the given string matches the
+  // first letter.
+  public ILoWord checkAndReduce(String letter) {
+    return this;
+  }
+
+  // takes in an IWord and produces an ILoWord that is like this ILoWord but with
+  // the given
+  // IWord added at the end.
+  public ILoWord addToEnd(IWord IWord) {
+    return this;
+  }
+
+  // produces an ILoWord with any IWords that have an empty string are filtered
+  // out.
+  public ILoWord filterOutEmpties() {
+    return this;
+  }
+
+  // takes in a WorldScene and draws all of the words in this ILoWord onto the
+  // given WorldScene
+
+  public WorldScene draw(WorldScene WorldScene) {
+    return new WorldScene(20, 20);
+  }
+
+}
+
+class ConsLoWord implements ILoWord {
+  IWord first;
+  ILoWord rest;
+
+  ConsLoWord(IWord first, ILoWord rest) {
+    this.first = first;
+    this.rest = rest;
+  }
+
+  /*- TEMPLATE
+  FIELDS:
+  ... this.first ...                   -- IWord
+  ... this.rest ...                    -- ILoWord
+  
+  METHODS
+  ... this.sort() ...                                -- ILoWord
+  ... this.isSorted() ...                            -- boolean
+  ... this.interleave.(ILoWord IWords) ...           -- ILoWord
+  ... this.merge(ILoWord IWords) ...                 -- ILoWord
+  ... this.checkAndReduce(String letter) ...         -- ILoWord
+  ... this.addToEnd(Word IWord) ...                  -- ILoWord
+  ... this.filterOutEmpties() ...                    -- ILoWord
+  ... this.draw(WorldScene WorldScene) ...           -- WorldScene
+  */
+
+  // produces a new list, with words sorted in alphabetical order,
+  // treating all Strings as if they were given in all lower case.
+  public ILoWord sort() {
+    return this;
+  }
+
+  // determines whether this list of IWords has words sorted in alphabetical
+  // order,
+  // in a case-insensitive way.
+  public boolean isSorted() {
+    return false;
+  }
+
+  // takes this list of IWords and a given list of IWords, and produces a list
+  // where the first,
+  // third, fifth... elements are from this list, and the second, fourth, sixth...
+  // elements
+  // are from the given list.
+  public ILoWord interleave(ILoWord IWords) {
+    return this;
+  }
+
+  // merges this sorted list of IWords and a given sorted list of IWords, and
+  // produces a sorted
+  // list of IWords that contains all items in both original lists, including
+  // duplicates, treating
+  // all Strings as if they were given in all lower case.
+  public ILoWord merge(ILoWord IWords) {
+    return this;
+  }
+
+  // takes in a String of length 1 and produces an ILoWord where any active words
+  // in this ILoWord
+  // are reduced by removing the first letter only if the given string matches the
+  // first letter.
+  public ILoWord checkAndReduce(String letter) {
+    return this;
+  }
+
+  // takes in an IWord and produces an ILoWord that is like this ILoWord but with
+  // the given
+  // IWord added at the end.
+  public ILoWord addToEnd(IWord IWord) {
+    return this;
+  }
+
+  // produces an ILoWord with any IWords that have an empty string are filtered
+  // out.
+  public ILoWord filterOutEmpties() {
+    return this;
+  }
+
+  // takes in a WorldScene and draws all of the words in this ILoWord onto the
+  // given WorldScene
+  public WorldScene draw(WorldScene WorldScene) {
+    return new WorldScene(20, 20);
+  }
+
+}
+
+//represents a word in the ZType game
+interface IWord {
+
+}
+
+//represents an active word in the ZType game
+class ActiveWord implements IWord {
+  String word;
+  int x;
+  int y;
+
+  ActiveWord(String word, int x, int y) {
+    this.word = word;
+    this.x = x;
+    this.y = y;
+  }
+
+}
+
+//represents an inactive word in the ZType game
+class InactiveWord implements IWord {
+  String word;
+  int x;
+  int y;
+
+  InactiveWord(String word, int x, int y) {
+    this.word = word;
+    this.x = x;
+    this.y = y;
+  }
+
+}
+
+//all examples and tests for ILoWord
+class ExamplesWordLists {
+  ExamplesWordLists() {
+    
+  }
+  
+  //IWords
+  IWord insect1 = new ActiveWord("butterfly", 1, 1);
+  IWord insect2 = new ActiveWord("ant", 1, 1);
+  IWord insect3 = new ActiveWord("bee", 1, 1);
+  IWord insect4 = new ActiveWord("ladybug", 1, 1);
+  
+  ILoWord mtList = new MtLoWord();
+  ILoWord list1 = new ConsLoWord(this.insect1, new ConsLoWord(this.insect2, new ConsLoWord(this.insect3, new ConsLoWord(this.insect4, this.mtList))));
+  ILoWord list2 = new ConsLoWord("cake", "ice-cream", "pudding", "pie", this.mtList);
+  ILoWord list3 = new ConsLoWord("rhino", "giraffe", "lion", "zebra", "crocodile", "buffalo");
+}

@@ -1,0 +1,878 @@
+
+import tester.Tester;
+
+import java.awt.Color;
+
+import javalib.funworld.WorldScene;
+import javalib.worldcanvas.WorldCanvas;
+import javalib.worldimages.FontStyle;
+import javalib.worldimages.RectangleImage;
+import javalib.worldimages.TextImage;
+
+//represents a list of words
+interface ILoWord {
+
+  // produces a new list, with words sorted in alphabetical order,
+  // treating all Strings as if they were given in all lower case.
+  ILoWord sort();
+
+  // determines whether this list of IWords has words sorted in alphabetical
+  // order,
+  // in a case-insensitive way.
+  boolean isSorted();
+
+  // takes this list of IWords and a given list of IWords, and produces a list
+  // where the first,
+  // third, fifth... elements are from this list, and the second, fourth, sixth...
+  // elements
+  // are from the given list.
+  ILoWord interleave(ILoWord iWords);
+
+  // merges this sorted list of IWords and a given sorted list of IWords, and
+  // produces a sorted
+  // list of IWords that contains all items in both original lists, including
+  // duplicates, treating
+  // all Strings as if they were given in all lower case.
+  ILoWord merge(ILoWord iWords);
+
+  // takes in a String of length 1 and produces an ILoWord where any active words
+  // in this ILoWord
+  // are reduced by removing the first letter only if the given string matches the
+  // first letter.
+  ILoWord checkAndReduce(String letter);
+
+  // takes in an IWord and produces an ILoWord that is like this ILoWord but with
+  // the given
+  // IWord added at the end.
+  ILoWord addToEnd(IWord iWord);
+
+  // produces an ILoWord with any IWords that have an empty string are filtered
+  // out.
+  ILoWord filterOutEmpties();
+
+  // takes in a WorldScene and draws all of the words in this ILoWord onto the
+  // given WorldScene
+  WorldScene draw(WorldScene worldScene); //WorldScene worldScene
+  
+  // insert the given word into this list of words
+  ILoWord insert(IWord iWord);
+  
+//does this string come before the given string 
+  boolean compareStrings(IWord iWord);
+
+}
+
+//represents an empty list of words
+class MtLoWord implements ILoWord {
+
+  /*- TEMPLATE
+  FIELDS:
+  
+  METHODS
+  ... this.sort() ...                                -- ILoWord
+  ... this.isSorted() ...                            -- boolean
+  ... this.interleave.(ILoWord iWords) ...           -- ILoWord
+  ... this.merge(ILoWord iWords) ...                 -- ILoWord
+  ... this.checkAndReduce(String letter) ...         -- ILoWord
+  ... this.addToEnd(Word iWord) ...                  -- ILoWord
+  ... this.filterOutEmpties() ...                    -- ILoWord
+  ... this.draw(WorldScene worldScene) ...           -- WorldScene
+  */
+
+  // produces a new list, with words sorted in alphabetical order,
+  // treating all Strings as if they were given in all lower case.
+  public ILoWord sort() {
+    return this;
+  }
+  
+  //insert the given word into this list of words
+  public ILoWord insert(IWord iWord) {
+    return new ConsLoWord(iWord, this);
+  }
+
+  // determines whether this list of IWords has words sorted in alphabetical
+  // order,
+  // in a case-insensitive way.
+  public boolean isSorted() {
+    return true;
+  }
+  
+  public boolean compareStrings(IWord iWord) {
+    return true;
+  }
+
+  // takes this list of IWords and a given list of IWords, and produces a list
+  // where the first,
+  // third, fifth... elements are from this list, and the second, fourth, sixth...
+  // elements
+  // are from the given list.
+  public ILoWord interleave(ILoWord iWords) {
+    return iWords;
+  }
+
+  // merges this sorted list of IWords and a given sorted list of IWords, and
+  // produces a sorted
+  // list of IWords that contains all items in both original lists, including
+  // duplicates, treating
+  // all Strings as if they were given in all lower case.
+  public ILoWord merge(ILoWord iWords) {
+    return iWords;
+  }
+
+  // takes in a String of length 1 and produces an ILoWord where any active words
+  // in this ILoWord
+  // are reduced by removing the first letter only if the given string matches the
+  // first letter.
+  public ILoWord checkAndReduce(String letter) {
+    return this;
+  }
+
+  // takes in an IWord and produces an ILoWord that is like this ILoWord but with
+  // the given
+  // IWord added at the end.
+  public ILoWord addToEnd(IWord iWord) {
+    return new ConsLoWord(iWord, this);
+  }
+
+  // produces an ILoWord with any IWords that have an empty string are filtered
+  // out.
+  public ILoWord filterOutEmpties() {
+    return this;
+  }
+
+  // takes in a WorldScene and draws all of the words in this ILoWord onto the
+  // given WorldScene
+
+  public WorldScene draw(WorldScene worldScene) { //WorldScene worldScene
+    return worldScene;  //new WorldScene(20, 20);
+  }
+
+}
+
+class ConsLoWord implements ILoWord {
+  IWord first;
+  ILoWord rest;
+
+  ConsLoWord(IWord first, ILoWord rest) {
+    this.first = first;
+    this.rest = rest;
+  }
+
+  /*- TEMPLATE
+  FIELDS:
+  ... this.first ...                   -- IWord
+  ... this.rest ...                    -- ILoWord
+  
+  METHODS
+  ... this.sort() ...                                -- ILoWord
+  ... this.isSorted() ...                            -- boolean
+  ... this.interleave.(ILoWord iWords) ...           -- ILoWord
+  ... this.merge(ILoWord iWords) ...                 -- ILoWord
+  ... this.checkAndReduce(String letter) ...         -- ILoWord
+  ... this.addToEnd(Word iWord) ...                  -- ILoWord
+  ... this.filterOutEmpties() ...                    -- ILoWord
+  ... this.draw(WorldScene WorldScene) ...           -- WorldScene
+  METHODS for fields:
+  ... this.rest.sort() ...                           -- ILoWord
+  ... this.first.isSorted() ...                      -- boolean
+  ... this.rest.isSorted() ...                       -- boolean
+  */
+
+  // produces a new list, with words sorted in alphabetical order,
+  // treating all Strings as if they were given in all lower case.
+  public ILoWord sort() {
+    return this.rest.sort().insert(this.first);
+  }
+  
+  //insert the given word into this list of words
+  public ILoWord insert(IWord iWord) {
+    if (this.first.compareStrings(iWord)) {
+      return new ConsLoWord(this.first, this.rest.insert(iWord));
+      } else {
+      return new ConsLoWord(iWord, this);
+      }
+    }
+
+  // determines whether this list of IWords has words sorted in alphabetical
+  // order,
+  // in a case-insensitive way.
+  public boolean isSorted() {
+    return this.rest.compareStrings(this.first) 
+        && this.rest.isSorted();
+  }
+  
+//does this string come before the given string 
+  public boolean compareStrings(IWord iWord) {
+    return iWord.compareStrings(this.first);
+    }
+
+  // takes this list of IWords and a given list of IWords, and produces a list
+  // where the first,
+  // third, fifth... elements are from this list, and the second, fourth, sixth...
+  // elements
+  // are from the given list.
+  public ILoWord interleave(ILoWord iWords) {
+    return new ConsLoWord(this.first, iWords.interleave(this.rest));
+  }
+
+  // merges this sorted list of IWords and a given sorted list of IWords, and
+  // produces a sorted
+  // list of IWords that contains all items in both original lists, including
+  // duplicates, treating
+  // all Strings as if they were given in all lower case.
+  public ILoWord merge(ILoWord iWords) {
+    if (iWords.compareStrings(this.first)) {
+      return new ConsLoWord(this.first, iWords.merge(this.rest));
+    } else {
+      return iWords.merge(this);
+    }
+  }
+
+  // takes in a String of length 1 and produces an ILoWord where any active words
+  // in this ILoWord
+  // are reduced by removing the first letter only if the given string matches the
+  // first letter.
+  public ILoWord checkAndReduce(String letter) {
+    if (this.first.isActiveWord(this.first) && this.first.firstLetterEqual(letter)) {
+      return new ConsLoWord(this.first.reduceString(), this.rest.checkAndReduce(letter));
+      } else {
+        return new ConsLoWord(this.first, this.rest.checkAndReduce(letter));
+        }
+    }
+
+  // takes in an IWord and produces an ILoWord that is like this ILoWord but with
+  // the given
+  // IWord added at the end.
+  public ILoWord addToEnd(IWord iWord) {
+    return new ConsLoWord(this.first, this.rest.addToEnd(iWord));
+  }
+
+  // produces an ILoWord with any IWords that have an empty string are filtered
+  // out.
+  public ILoWord filterOutEmpties() {
+    if (this.first.emptyString()) {
+      return this.rest.filterOutEmpties();
+    } else {
+      return new ConsLoWord(this.first, this.rest.filterOutEmpties());
+    }
+  }
+
+  // takes in a WorldScene and draws all of the words in this ILoWord onto the
+  // given WorldScene
+  public WorldScene draw(WorldScene worldScene) { //WorldScene worldScene
+    return this.rest.draw(this.first.drawText(worldScene));
+  }
+
+}
+
+//represents a word in the ZType game
+interface IWord {
+  
+  // does this string come before the given string
+  boolean compareStrings(IWord iWord);
+  
+  // compare 2 strings
+  boolean compareStrings2(String w);
+  
+  //is this word and active word?
+  boolean isActiveWord(IWord iWord);
+  
+  // are the first letters equal?
+  boolean firstLetterEqual(String l);
+  
+  //reduces the string by removing the first letter
+  IWord reduceString();
+  
+  //is this string empty?
+  boolean emptyString();
+  
+  // to draw an IWord
+  WorldScene drawText(WorldScene worldScene);
+  
+}
+
+//represents an active word in the ZType game
+class ActiveWord implements IWord {
+  String word;
+  int x;
+  int y;
+
+  ActiveWord(String word, int x, int y) {
+    this.word = word;
+    this.x = x;
+    this.y = y;
+  }
+  
+  /*- TEMPLATE
+  FIELDS:
+  ... this.word ...                 -- String
+  ... this.x ...                    -- int
+  ... this.y ...                    -- int
+  
+  METHODS
+  ... this.compareStrings() ...     -- boolean
+  ... this.compareStrings2() ...    -- boolean
+  
+  METHODS for fields:
+  ... isActiveWord ...              -- boolean
+  ... firstLetterEqual ...          -- boolean
+  ... reduceString ...              -- IWord
+  ... emptyString ...               -- boolean
+  */
+ 
+ // does this string come before the given string 
+  public boolean compareStrings(IWord iWord) {
+    return iWord.compareStrings2(this.word);
+}
+  
+  // compares 2 strings
+  public boolean compareStrings2(String w) {
+  return this.word.compareToIgnoreCase(w) >= 0;  //compareToIgnoreCase
+  }
+
+  //is this word and active word?
+  public boolean isActiveWord(IWord iWord) {
+    return true;
+  }
+  
+  // are the first letters equal?
+  public boolean firstLetterEqual(String l) {
+    return this.word.substring(0, 1).compareTo(l) == 0;
+  }
+  
+  //reduces the string by removing the first letter
+  public IWord reduceString() {
+    return new ActiveWord(this.word.substring(1), this.x, this.y);
+  }
+  
+  //is this string empty?
+  public boolean emptyString() {
+    return this.word.compareTo("") == 0;
+  }
+  
+
+  // To draw an IWord
+  public WorldScene drawText(WorldScene worldScene) {
+    return worldScene.placeImageXY(new TextImage(this.word, 24, FontStyle.BOLD, Color.GREEN), this.x, this.y);
+  }
+    
+}
+
+//represents an inactive word in the ZType game
+class InactiveWord implements IWord {
+  String word;
+  int x;
+  int y;
+
+  InactiveWord(String word, int x, int y) {
+    this.word = word;
+    this.x = x;
+    this.y = y;
+  }
+  
+  /*- TEMPLATE
+  FIELDS:
+  ... this.word ...                 -- String
+  ... this.x ...                    -- int
+  ... this.y ...                    -- int
+  
+  METHODS
+  ... this.compareStrings() ...     -- boolean
+  ... this.compareStrings2() ...    -- boolean
+  
+  METHODS for fields:
+  ... isActiveWord ...              -- boolean
+  ... firstLetterEqual ...          -- boolean
+  ... reduceString ...              -- IWord
+  ... emptyString ...               -- boolean
+  */
+  
+  //does this string come before the given string 
+  public boolean compareStrings(IWord iWord) {
+    return iWord.compareStrings2(this.word);
+    }
+ 
+  // compares 2 strings
+  public boolean compareStrings2(String w) {
+    return this.word.compareToIgnoreCase(w) >= 0;
+    }
+  
+  //is this word and active word?
+  public boolean isActiveWord(IWord iWord) {
+    return false;
+  }
+  
+  //are the first letters equal?
+  public boolean firstLetterEqual(String l) {
+   return (this.word.substring(0, 1).compareTo(l) == 0);
+ }
+  
+  // reduces the string by removing the first letter
+  public IWord reduceString() {
+    return new InactiveWord(this.word.substring(1), this.x, this.y);
+  }
+ 
+  //is this string empty?
+  public boolean emptyString() {
+    return this.word.compareTo("") == 0;
+  }
+  
+  //To draw an IWord
+  public WorldScene drawText(WorldScene worldScene) {
+   return worldScene.placeImageXY(new TextImage(this.word, 24, FontStyle.BOLD, Color.RED), this.x, this.y);
+ }
+}
+
+//all examples and tests for ILoWord
+class ExamplesWordLists {
+  ExamplesWordLists() {
+
+  }
+
+  // IWords
+  IWord butterfly = new ActiveWord("butterfly", 1, 1);
+  IWord ant = new InactiveWord("ant", 1, 1);
+  IWord bee = new ActiveWord("bee", 1, 1);
+  IWord ladybug = new ActiveWord("ladybug", 1, 1);
+  IWord beetle = new InactiveWord("beetle", 14, 29);
+
+  IWord cake = new ActiveWord("cake", 1, 1);
+  IWord yoghurt = new ActiveWord("yoghurt", 1, 1);
+  IWord pudding = new InactiveWord("pudding", 1, 1);
+  IWord pie = new ActiveWord("pie", 1, 1);
+
+  IWord rhino = new ActiveWord("rhino", 1, 1);
+  IWord giraffe = new InactiveWord("giraffe", 1, 1);
+  IWord lion = new InactiveWord("lion", 1, 1);
+  IWord zebra = new ActiveWord("zebra", 1, 1);
+  IWord crocodile = new ActiveWord("crocodile", 1, 1);
+  IWord buffalo = new InactiveWord("buffalo", 1, 1);
+
+  IWord red = new InactiveWord("red", 3, 2);
+  IWord orange = new ActiveWord("orange", 6, 10);
+  IWord green = new ActiveWord("green", 1, 1);
+  IWord yellow = new ActiveWord("Yellow", 9, 15);
+  IWord purple = new InactiveWord("Purple", 1, 1);
+
+  IWord sam = new ActiveWord("Sam", 1, 1);
+  IWord kate = new ActiveWord("Kate", 1, 1);
+  IWord alison = new ActiveWord("Alison", 1, 1);
+  IWord jake = new ActiveWord("Jake", 1, 1);
+  IWord izzy = new ActiveWord("Izzy", 1, 1);
+  IWord lara = new InactiveWord("Lara", 1, 1);
+  IWord dan = new ActiveWord("Dan", 1, 1);
+  IWord viki = new InactiveWord("Viki", 1, 1);
+  IWord amy = new InactiveWord("Amy", 1, 1);
+
+  IWord mtStringActive = new ActiveWord("", 1, 1);
+  IWord mtStringInactive = new InactiveWord("", 1, 1);
+
+  ILoWord mtList = new MtLoWord(); // sorted
+
+  ILoWord list1 = new ConsLoWord(this.butterfly, new ConsLoWord(this.ant,
+      new ConsLoWord(this.bee, new ConsLoWord(this.ladybug, this.mtList))));
+
+  ILoWord list2 = new ConsLoWord(this.cake, new ConsLoWord(this.yoghurt,
+      new ConsLoWord(this.pudding, new ConsLoWord(this.pie, this.mtList))));
+
+  ILoWord list3 = new ConsLoWord(this.rhino,
+      new ConsLoWord(this.giraffe, new ConsLoWord(this.lion, new ConsLoWord(zebra,
+          new ConsLoWord(this.crocodile, new ConsLoWord(this.buffalo, this.mtList))))));
+
+  ILoWord list4 = new ConsLoWord(this.red,
+      new ConsLoWord(this.orange, new ConsLoWord(this.yellow, this.mtList)));
+
+  ILoWord list5 = new ConsLoWord(this.yellow,
+      new ConsLoWord(this.purple, new ConsLoWord(this.yellow, this.mtList)));
+
+  ILoWord list6 = new ConsLoWord(this.red,
+      new ConsLoWord(this.yellow, new ConsLoWord(this.purple, this.mtList)));
+
+  ILoWord list7 = new ConsLoWord(this.sam,
+      new ConsLoWord(this.kate, new ConsLoWord(this.alison, this.mtList)));
+
+  ILoWord list8 = new ConsLoWord(this.kate,
+      new ConsLoWord(this.alison,
+          new ConsLoWord(this.jake, new ConsLoWord(this.izzy, new ConsLoWord(this.lara,
+              new ConsLoWord(this.dan, new ConsLoWord(this.viki, this.mtList)))))));
+
+  ILoWord list9 = new ConsLoWord(this.cake,
+      new ConsLoWord(this.pie, new ConsLoWord(this.cake, this.mtList)));
+
+  ILoWord list10 = new ConsLoWord(this.cake, new ConsLoWord(this.pie, new ConsLoWord(this.cake,
+      new ConsLoWord(this.pie, new ConsLoWord(this.pudding, this.mtList)))));
+
+  ILoWord list11 = new ConsLoWord(this.sam, new ConsLoWord(this.kate, new ConsLoWord(this.alison,
+      new ConsLoWord(this.kate, new ConsLoWord(this.sam, new ConsLoWord(this.dan, this.mtList))))));
+
+  ILoWord list12 = new ConsLoWord(this.red, new ConsLoWord(this.yellow,
+      new ConsLoWord(this.purple, new ConsLoWord(this.yellow, new ConsLoWord(red, this.mtList)))));
+
+  // sorted lists
+  ILoWord list13 = new ConsLoWord(this.ant, new ConsLoWord(this.bee, this.mtList));
+
+  ILoWord list14 = new ConsLoWord(this.alison, new ConsLoWord(this.dan, this.mtList));
+
+  ILoWord list15 = new ConsLoWord(this.ant, this.mtList);
+
+  ILoWord list16 = new ConsLoWord(this.lara, this.mtList);
+
+  ILoWord list17 = new ConsLoWord(this.purple,
+      new ConsLoWord(this.red, new ConsLoWord(this.yellow, this.mtList)));
+
+  ILoWord list18 = new ConsLoWord(this.alison, new ConsLoWord(this.dan, new ConsLoWord(this.kate,
+      new ConsLoWord(this.kate, new ConsLoWord(this.sam, new ConsLoWord(this.sam, this.mtList))))));
+
+  ILoWord list19 = new ConsLoWord(this.lion,
+      new ConsLoWord(this.lion, new ConsLoWord(this.rhino, this.mtList)));
+
+  // IWords with empty strings
+  ILoWord list20 = new ConsLoWord(this.purple, new ConsLoWord(this.red,
+      new ConsLoWord(this.yellow, new ConsLoWord(this.mtStringActive, this.mtList))));
+
+  ILoWord list21 = new ConsLoWord(this.purple, new ConsLoWord(this.red,
+      new ConsLoWord(this.yellow, new ConsLoWord(this.mtStringInactive, this.mtList))));
+
+  ILoWord list22 = new ConsLoWord(this.purple,
+      new ConsLoWord(this.mtStringInactive, new ConsLoWord(this.red,
+          new ConsLoWord(this.yellow, new ConsLoWord(this.mtStringActive, this.mtList)))));
+  
+  ILoWord list23 = new ConsLoWord(this.purple, new ConsLoWord(this.ant, new ConsLoWord(this.cake, new ConsLoWord(this.ant, 
+      new ConsLoWord(this.cake, this.mtList)))));
+  
+
+  // WorldScenes
+  WorldScene blankWorldScene = new WorldScene(40, 40);
+
+  WorldScene antWorldScene = this.blankWorldScene
+      .placeImageXY(new TextImage("ant", 24, FontStyle.BOLD, Color.RED), 1, 1);
+
+  WorldScene list4WorldScene = this.blankWorldScene
+      .placeImageXY(new TextImage("red", 24, FontStyle.BOLD, Color.RED), 3, 2)
+      .placeImageXY(new TextImage("orange", 24, FontStyle.BOLD, Color.GREEN), 6, 10)
+      .placeImageXY(new TextImage("Yellow", 24, FontStyle.BOLD, Color.GREEN), 9, 15);
+  
+
+  // test the method sort
+  boolean testSort(Tester t) {
+    return t.checkExpect(mtList.sort(), new MtLoWord()) // empty list
+        && t.checkExpect(this.list1.sort(), new ConsLoWord(this.ant, new ConsLoWord(this.bee,
+            new ConsLoWord(this.butterfly, new ConsLoWord(this.ladybug, this.mtList)))))
+        // unsorted, un-repeated lower case list
+
+         && t.checkExpect(this.list6.sort(), new ConsLoWord(this.purple,
+            new ConsLoWord(this.red, new ConsLoWord(this.yellow, this.mtList))))
+        // unsorted lower and upper case, un-repeated list
+
+         && t.checkExpect(this.list5.sort(), new ConsLoWord(this.purple,
+            new ConsLoWord(this.yellow, new ConsLoWord(this.yellow, this.mtList))))
+        // unsorted all upper case list with 1 repeated string
+
+         && t.checkExpect(this.list9.sort(), new ConsLoWord(this.cake,
+             new ConsLoWord(this.cake, new ConsLoWord(this.pie, this.mtList))))
+        // unsorted all lower case with 1 repeated string
+
+          && t.checkExpect(this.list10.sort(), new ConsLoWord(this.cake, new ConsLoWord(this.cake,
+            new ConsLoWord(this.pie, new ConsLoWord(this.pie, new ConsLoWord(this.pudding, this.mtList))))))
+        // unsorted all lower case with 2 repeated strings
+
+         && t.checkExpect(this.list11.sort(),
+            new ConsLoWord(this.alison,
+                new ConsLoWord(this.dan, new ConsLoWord(this.kate, new ConsLoWord(this.kate,
+                    new ConsLoWord(this.sam, new ConsLoWord(this.sam, this.mtList)))))))
+        // unsorted all upper case with 2 repeated strings
+
+        && t.checkExpect(this.list7.sort(), new ConsLoWord(this.alison,
+            new ConsLoWord(this.kate, new ConsLoWord(this.sam, this.mtList))))
+        // unsorted, un-repeated, all upper case
+
+        && t.checkExpect(this.list12.sort(),
+            new ConsLoWord(this.purple, new ConsLoWord(this.red,
+                new ConsLoWord(this.red, new ConsLoWord(this.yellow, new ConsLoWord(yellow, this.mtList))))))
+        // unsorted, repeated upper and repeated lower case
+
+        && t.checkExpect(this.list15, new ConsLoWord(this.ant, this.mtList))
+        // upper case 1 element
+
+        && t.checkExpect(this.list16, new ConsLoWord(this.lara, this.mtList)) 
+        // lower case 1 element 
+        
+        && t.checkExpect(this.list23.sort(), new ConsLoWord(this.ant, new ConsLoWord(this.ant, 
+            new ConsLoWord(this.cake, new ConsLoWord(this.cake, 
+            new ConsLoWord(this.purple, this.mtList))))));
+  }
+
+ // test method for isSorted
+  boolean testIsSorted(Tester t) {
+    return t.checkExpect(this.mtList.isSorted(), true) // empty list
+        && t.checkExpect(this.list1.isSorted(), false) // unsorted lower case
+        && t.checkExpect(this.list6.isSorted(), false) // unsorted upper and lower case
+        && t.checkExpect(this.list5.isSorted(), false) // unsorted upper case with 1 repeat
+        && t.checkExpect(this.list12.isSorted(), false)
+        // unsorted repeated upper and repeated lower-case
+        && t.checkExpect(this.list13.isSorted(), true) // sorted lower case
+        && t.checkExpect(this.list14.isSorted(), true) // sorted upper case
+        && t.checkExpect(this.list17.isSorted(), true) // sorted upper and lower case
+        && t.checkExpect(this.list15.isSorted(), true) // upper case 1 element
+        && t.checkExpect(this.list16.isSorted(), true) // lower case 1 element
+        && t.checkExpect(this.list18.isSorted(), true); // sorted upper case with 2 repeats
+
+  }
+
+  // test method for interleave
+  boolean testInterLeave(Tester t) {
+    return t.checkExpect(this.mtList.interleave(this.mtList), new MtLoWord())
+        // this mtList with given mtList
+
+        && t.checkExpect(this.mtList.interleave(this.list15), new ConsLoWord(this.ant, this.mtList))
+        // this mtList with given 1 element list
+
+        && t.checkExpect(this.list15.interleave(this.mtList), new ConsLoWord(this.ant, this.mtList))
+        // 1 element list with given mtList
+
+        && t.checkExpect(this.list1.interleave(this.list2),
+            new ConsLoWord(this.butterfly,
+                new ConsLoWord(this.cake, new ConsLoWord(this.ant,
+                    new ConsLoWord(this.yoghurt, new ConsLoWord(this.bee, new ConsLoWord(
+                        this.pudding,
+                        new ConsLoWord(this.ladybug, new ConsLoWord(this.pie, this.mtList)))))))))
+        // same length list
+
+        && t.checkExpect(this.list4.interleave(list8),
+            new ConsLoWord(this.red, new ConsLoWord(this.kate,
+                new ConsLoWord(this.orange, new ConsLoWord(this.alison, new ConsLoWord(this.yellow,
+                    new ConsLoWord(this.jake, new ConsLoWord(this.izzy, new ConsLoWord(this.lara,
+                        new ConsLoWord(this.dan, new ConsLoWord(this.viki, this.mtList)))))))))))
+        // this short list with given long list
+
+        && t.checkExpect(this.list8.interleave(list4),
+            new ConsLoWord(this.kate,
+                new ConsLoWord(this.red,
+                    new ConsLoWord(this.alison, new ConsLoWord(this.orange,
+                        new ConsLoWord(this.jake, new ConsLoWord(this.yellow, new ConsLoWord(
+                            this.izzy,
+                            new ConsLoWord(this.lara, new ConsLoWord(this.dan, new ConsLoWord(this.viki, this.mtList)))))))))))
+        // this long list with given short list
+
+        && t.checkExpect(this.list6.interleave(list17),
+            new ConsLoWord(this.red,
+                new ConsLoWord(this.purple, new ConsLoWord(this.yellow, new ConsLoWord(this.red,
+                    new ConsLoWord(this.purple, new ConsLoWord(this.yellow, this.mtList)))))))
+        // upper and lower case lists
+
+        && t.checkExpect(this.list6.interleave(list6),
+            new ConsLoWord(this.red,
+                new ConsLoWord(this.red, new ConsLoWord(this.yellow, new ConsLoWord(this.yellow,
+                    new ConsLoWord(this.purple, new ConsLoWord(this.purple, this.mtList)))))));
+    // same lists
+  }
+
+  // test method for merge
+  boolean testMerge(Tester t) {
+    return t.checkExpect(this.mtList.merge(this.mtList), new MtLoWord())
+        // 2 empty lists (sorted)
+        && t.checkExpect(this.mtList.merge(this.list15), new ConsLoWord(this.ant, this.mtList))
+        // this mtList and given 1 element list
+
+        && t.checkExpect(this.mtList.merge(this.list16), new ConsLoWord(this.lara, this.mtList))
+        // this 1 element list and given mtList
+
+        && t.checkExpect(this.mtList.merge(this.list13),
+            new ConsLoWord(this.ant, new ConsLoWord(this.bee, this.mtList)))
+        // this mtList and given sorted list
+
+        && t.checkExpect(this.list13.merge(this.mtList),
+            new ConsLoWord(this.ant, new ConsLoWord(this.bee, this.mtList)))
+        // this sorted list and given mtList
+
+        && t.checkExpect(this.list17.merge(this.list18),
+            new ConsLoWord(this.alison,
+                new ConsLoWord(this.dan, new ConsLoWord(this.kate, new ConsLoWord(this.kate,
+                    new ConsLoWord(this.purple, new ConsLoWord(this.red, new ConsLoWord(this.sam,
+                        new ConsLoWord(this.sam, new ConsLoWord(this.yellow, this.mtList))))))))))
+        // this short(sorted) list with given long(sorted) list
+
+        && t.checkExpect(this.list18.merge(this.list17),
+            new ConsLoWord(this.alison,
+                new ConsLoWord(this.dan, new ConsLoWord(this.kate, new ConsLoWord(this.kate,
+                    new ConsLoWord(this.purple, new ConsLoWord(this.red, new ConsLoWord(this.sam,
+                        new ConsLoWord(this.sam, new ConsLoWord(this.yellow, this.mtList))))))))))
+        // this long(sorted) list with given short(sorted) list
+
+        && t.checkExpect(this.list19.merge(this.list19),
+            new ConsLoWord(this.lion,
+                new ConsLoWord(this.lion, new ConsLoWord(this.lion, new ConsLoWord(this.lion,
+                    new ConsLoWord(this.rhino, new ConsLoWord(this.rhino, this.mtList)))))))
+        // same list(sorted) with repeats
+
+        && t.checkExpect(this.list18.merge(list19),
+            new ConsLoWord(this.alison,
+                new ConsLoWord(this.dan,
+                    new ConsLoWord(this.kate, new ConsLoWord(this.kate,
+                        new ConsLoWord(this.lion, new ConsLoWord(this.lion, new ConsLoWord(
+                            this.rhino,
+                            new ConsLoWord(this.sam, new ConsLoWord(this.sam, this.mtList))))))))))
+        // this sorted repeat list with given sorted repeat list
+
+        && t.checkExpect(this.list19.merge(list13),
+            new ConsLoWord(this.ant, new ConsLoWord(this.bee, new ConsLoWord(this.lion,
+                new ConsLoWord(this.lion, new ConsLoWord(this.rhino, this.mtList))))))
+        // this sorted repeat list with given sorted un-repeated list
+
+        && t.checkExpect(this.list19.merge(list13),
+            new ConsLoWord(this.ant, new ConsLoWord(this.bee, new ConsLoWord(this.lion,
+                new ConsLoWord(this.lion, new ConsLoWord(this.rhino, this.mtList))))));
+    // this sorted un-repeated list with given sorted repeat list
+
+  }
+
+  // test method for checkAndReduce
+  boolean testCheckAndReduce(Tester t) {
+    return t.checkExpect(this.mtList.checkAndReduce("s"), new MtLoWord())
+        // mtList
+
+        && t.checkExpect(this.mtList.checkAndReduce("A"), new MtLoWord())
+        // mtList
+
+        && t.checkExpect(this.list16.checkAndReduce("s"), new ConsLoWord(this.lara, this.mtList))
+        // 1 element list with un-matching letter
+
+        && t.checkExpect(this.list16.checkAndReduce("l"), new ConsLoWord(this.lara, this.mtList))
+        // 1 element list with matching letter
+
+        && t.checkExpect(this.list19.checkAndReduce("r"), new ConsLoWord(this.lion,
+            new ConsLoWord(this.lion, new ConsLoWord(new ActiveWord("hino", 1, 1), this.mtList))))
+        // repeated list with active words and matching letter
+
+        && t.checkExpect(this.list19.checkAndReduce("b"), new ConsLoWord(this.lion,
+            new ConsLoWord(this.lion, new ConsLoWord(this.rhino, this.mtList))))
+        // repeated list with active words and un-matching letter
+
+        && t.checkExpect(this.list19.checkAndReduce("l"), new ConsLoWord(this.lion,
+            new ConsLoWord(this.lion, new ConsLoWord(this.rhino, this.mtList))))
+        // repeated list with inactive words and matching letter
+
+        && t.checkExpect(this.list19.checkAndReduce("k"), new ConsLoWord(this.lion,
+            new ConsLoWord(this.lion, new ConsLoWord(this.rhino, this.mtList))))
+        // repeated list with inactive words and un-matching letter
+
+        && t.checkExpect(this.list2.checkAndReduce("c"),
+            new ConsLoWord(new ActiveWord("ake", 1, 1), new ConsLoWord(this.yoghurt,
+                new ConsLoWord(this.pudding, new ConsLoWord(this.pie, this.mtList)))))
+        // un-repeated list with active words and matching letter
+
+        && t.checkExpect(this.list2.checkAndReduce("m"),
+            new ConsLoWord(this.cake, new ConsLoWord(this.yoghurt,
+                new ConsLoWord(this.pudding, new ConsLoWord(this.pie, this.mtList)))))
+        // un-repeated list with active words and un-matching letter
+
+        && t.checkExpect(this.list2.checkAndReduce("p"),
+            new ConsLoWord(this.cake, new ConsLoWord(this.yoghurt,
+                new ConsLoWord(this.pudding, new ConsLoWord(new ActiveWord("ie", 1, 1), this.mtList)))))
+        // un-repeated list with inactive words and matching letter
+
+        && t.checkExpect(this.list2.checkAndReduce("t"),
+            new ConsLoWord(this.cake, new ConsLoWord(this.yoghurt,
+                new ConsLoWord(this.pudding, new ConsLoWord(this.pie, this.mtList)))));
+    // un-repeated list with inactive words and un-matching letter
+
+  }
+
+  // test method for addToEnd
+  boolean testAddToEnd(Tester t) {
+    return t.checkExpect(this.mtList.addToEnd(this.alison),
+        new ConsLoWord(this.alison, this.mtList))
+        // this mtList
+
+        && t.checkExpect(this.list15.addToEnd(this.butterfly),
+            new ConsLoWord(this.ant, new ConsLoWord(this.butterfly, this.mtList)))
+        // list with one element
+
+        && t.checkExpect(this.list1.addToEnd(this.bee),
+            new ConsLoWord(this.butterfly, new ConsLoWord(this.ant, new ConsLoWord(this.bee,
+                new ConsLoWord(this.ladybug, new ConsLoWord(this.bee, this.mtList))))));
+    // list with more than one element
+
+  }
+  
+
+  // test method for filterOutEmpties
+  boolean testFilterOutEmpties(Tester t) {
+    return t.checkExpect(this.mtList.filterOutEmpties(), this.mtList)
+        // empty list
+        && t.checkExpect(this.list20.filterOutEmpties(), new ConsLoWord(this.purple,
+            new ConsLoWord(this.red, new ConsLoWord(this.yellow, this.mtList))))
+        // list with active empty string
+
+        && t.checkExpect(this.list21.filterOutEmpties(), new ConsLoWord(this.purple,
+            new ConsLoWord(this.red, new ConsLoWord(this.yellow, this.mtList))))
+        // list with inactive empty string
+        && t.checkExpect(this.list22.filterOutEmpties(), new ConsLoWord(this.purple,
+            new ConsLoWord(this.red, new ConsLoWord(this.yellow, this.mtList))));
+    // list with active and inactive empty strings
+  }
+
+/*  // test method for worldScene
+  boolean testDraw(Tester t) {
+    return t.checkExpect(this.list15.draw(this.blankWorldScene), this.antWorldScene)
+        // empty scene and list with one element
+
+        && t.checkExpect(this.mtList.draw(this.blankWorldScene), this.blankWorldScene)
+        // empty list
+
+        && t.checkExpect(this.list4.draw(this.blankWorldScene), this.list4WorldScene);
+    // empty scene and list with more than one element and active and inactive words 
+  } */
+  
+  void testDrawWords(Tester t) {
+    WorldCanvas c1 = new WorldCanvas(500, 500);
+    WorldScene s1 = new WorldScene(500, 500).placeImageXY(new RectangleImage(500, 500, "solid", Color.BLACK), 250, 250);
+    c1.drawScene(this.list15.draw(s1));
+    c1.show;
+         
+      } 
+  
+ /* // test method for compareStrings (String)
+  boolean testCompareStrings(Tester t) {
+    return t.checkExpect(this.ant.compareStrings(this.ant), true) // same string lower case
+        && t.checkExpect(this.izzy.compareStrings(this.izzy), true) // same string upper case
+        && t.checkExpect(this.bee.compareStrings(this.beetle), true) // lower case matching first 3 letters
+        && t.checkExpect(this.ant.compareStrings(this.bee), true) // lower case un-matching strings
+        && t.checkExpect(this.alison.compareStrings(this.amy), true) //both upper case matching strings(different)
+        && t.checkExpect(this.dan.compareStrings(this.viki), true) //upper case un-matching strings
+        && t.checkExpect(this.ant.compareStrings(this.alison), true) //lower case string with given matching upper case string
+        && t.checkExpect(this.ant.compareStrings(this.lara), false) //lower case string with given un-matching upper case string
+        && t.checkExpect(this.jake.compareStrings(this.cake), false) // upper case string with given un-matching lower case string
+        && t.checkExpect(this.lara.compareStrings(this.lion), true); //upper case string with given matching lower case string
+  } 
+  
+  
+  
+
+  
+
+
+  
+
+  
+  
+//test method for compareStrings2
+//same string lower case
+   // same string upper case
+   // lower case matching strings
+   // lower case un-matching strings
+   //both upper case matching strings(different)
+   //upper case un-matching strings
+   //lower case string with given matching upper case string
+ //lower case string with given un-matching upper case string
+  // upper case string with given un-matching lower case string
+//upper case string with given matching lower case string
+  
+  
+//test method for ActiveWord
+//test method for firstLetterEqual 
+//test method for reduceString
+//test method for emptyString
+//test method for insert */
+
+} 

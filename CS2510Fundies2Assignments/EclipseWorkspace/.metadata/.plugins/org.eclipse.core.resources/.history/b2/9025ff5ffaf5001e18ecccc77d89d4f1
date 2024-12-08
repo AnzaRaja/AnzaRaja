@@ -1,0 +1,117 @@
+import java.util.ArrayList;
+import tester.*;
+import javalib.impworld.*;
+import java.awt.Color;
+import javalib.worldimages.*;
+
+// to represent the LightEmAll class
+class LightEmAll extends World {
+
+  // a list of columns of GamePieces,
+  // i.e., represents the board in column-major order
+  ArrayList<ArrayList<GamePiece>> board;
+
+  // a list of all nodes
+  ArrayList<GamePiece> nodes;
+
+  // a list of edges of the minimum spanning tree
+  ArrayList<Edge> mst;
+
+  // the width and height of the board
+  int width;
+  int height;
+
+  // the current location of the power station,
+  // as well as its effective radius
+  int powerRow;
+  int powerCol;
+  int radius;
+
+  LightEmAll(int width, int height) {
+    this.width = width;
+    this.height = height;
+    this.board = new ArrayList<ArrayList<GamePiece>>();
+  }
+
+  // draws the board
+  public WorldScene makeScene() {
+    WorldScene scene = new WorldScene(this.width, this.height);
+    for (int r = 0; r < this.width; r++) {
+      for (int c = 0; c < this.height; c++) {
+        scene.placeImageXY(board.get(r).get(c).drawGamePiece(), r + 15, c + 15);
+      }
+    }
+    return scene;
+  }
+}
+
+// to represent an edge
+class Edge {
+  GamePiece fromNode;
+  GamePiece toNode;
+  int weight;
+
+  Edge(GamePiece fromNode, GamePiece toNode, int weight) {
+    this.fromNode = fromNode;
+    this.toNode = toNode;
+    this.weight = weight;
+  }
+}
+
+// to represent a GamePiece
+class GamePiece {
+  // in logical coordinates, with the origin
+  // at the top-left corner of the screen
+  int row;
+  int col;
+  // whether this GamePiece is connected to the
+  // adjacent left, right, top, or bottom pieces
+  boolean left;
+  boolean right;
+  boolean top;
+  boolean bottom;
+  // whether the power station is on this piece
+  boolean powerStation;
+  boolean powered;
+
+  GamePiece(boolean left, boolean right, boolean top, boolean bottom, boolean powerStation,
+      boolean powered) {
+    this.left = left;
+    this.right = right;
+    this.top = top;
+    this.bottom = bottom;
+    this.powerStation = powerStation;
+    this.powered = powered;
+  }
+
+  // draws an individual GamePiece
+  public WorldImage drawGamePiece() {
+    // Tile with a bottom wire
+    WorldImage bot = new OverlayOffsetImage(new RectangleImage(30, 30, "solid", Color.black), 0,
+        7.5, new RectangleImage(6, 15, "solid", Color.lightGray));
+
+    // Tile with a top and bottom wire
+    WorldImage topBot = new OverlayImage(new RectangleImage(30, 30, "solid", Color.black),
+        new RectangleImage(6, 30, "solid", Color.lightGray));
+
+    // Tile with a top, bottom and right wire
+    WorldImage topBotRight = new OverlayOffsetImage(
+        new OverlayImage(new RectangleImage(30, 30, "solid", Color.black),
+            new RectangleImage(6, 30, "solid", Color.lightGray)),
+        7.5, 0, new RectangleImage(15, 6, "solid", Color.lightGray));
+
+    // Tile with a top, bottom and left wire
+    WorldImage topBotLeft = new OverlayOffsetImage(
+        new OverlayImage(new RectangleImage(30, 30, "solid", Color.black),
+            new RectangleImage(6, 30, "solid", Color.lightGray)),
+        -7.5, 0, new RectangleImage(15, 6, "solid", Color.lightGray));
+
+    // Tile with a top, bottom, left and right wire
+    WorldImage topBotLeftRight = new OverlayImage(
+        new OverlayImage(new RectangleImage(30, 30, "solid", Color.black),
+            new RectangleImage(6, 30, "solid", Color.lightGray)),
+        new RectangleImage(30, 6, "solid", Color.lightGray));
+
+    return null;
+  }
+}

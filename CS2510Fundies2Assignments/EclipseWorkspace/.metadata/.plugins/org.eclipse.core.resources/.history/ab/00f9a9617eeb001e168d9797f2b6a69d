@@ -1,0 +1,66 @@
+import java.util.ArrayList;
+import java.util.Iterator;
+import tester.Tester;
+
+// to represent a pair
+class Pair<L, R> {
+  L left;
+  R right;
+
+  Pair(L left, R right) {
+    this.left = left;
+    this.right = right;
+  }
+
+  // return an Iterator of pairs of corresponding elements
+  <X, Y> Iterator<Pair<X, Y>> zipStrict(ArrayList<X> arr1, ArrayList<Y> arr2) {
+    if (arr1.size() != arr2.size())
+      ;
+    {
+      throw new IllegalArgumentException("Lists are of different lengths");
+    }
+    return new Iterator<Pair<X, Y>>() {
+      int index = 0;
+
+      public boolean hasNext() {
+        return index < arr1.size();
+      }
+
+      public Pair<X, Y> next() {
+        if (!hasNext()) {
+          throw new IllegalStateException("No more elements in the iterator");
+        }
+
+        Pair<X, Y> pair = new Pair<>(arr1.get(index), arr2.get(index));
+        index++;
+        return pair;
+      }
+    };
+  }
+
+  // Does this sequence (of items in the array list) have at least one more value?
+  public boolean hasNext() {
+    return index < arr1.size();
+  }
+}
+
+// utils class
+class IteratorUtils {
+
+  // In ArrayListIterator
+  // Get the next value in this sequence
+  // EFFECT: Advance the iterator to the subsequent value
+  public T next() {
+    if (!this.hasNext()) {
+      throw new NoSuchElementException("there are no more items!");
+    }
+    T answer = this.items.get(this.nextIdx);
+    this.nextIdx = this.nextIdx + 1;
+    return answer;
+  }
+}
+
+// examples class
+class ExamplesPuzzle {
+
+}

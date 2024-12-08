@@ -1,0 +1,31 @@
+// import tester.Tester;
+
+// Represents a bank account
+abstract class Account {
+
+  int accountNum;  // Must be unique
+  int balance;     // Must remain above zero (others Accts have more restrictions)
+  String name;     // Name on the account
+
+  Account(int accountNum, int balance, String name){
+    this.accountNum = accountNum;
+    this.balance = balance;
+    this.name = name;
+  }
+  
+}
+
+//Represents a Bank with list of accounts
+class Bank {
+ 
+String name;
+ILoAccount accounts;
+ 
+Bank(String name) {
+ this.name = name;
+
+ // Each bank starts with no accounts
+ this.accounts = new MtLoAccount();
+}
+
+}

@@ -1,0 +1,391 @@
+import tester.Tester;
+
+// to represent a picture
+interface IPicture {
+
+  // computes the overall width of this picture
+  int getWidth();
+  
+  // computes the number of single shapes involved in producing the final image
+  int countShapes();
+  
+  //computes how deeply operations are nested in the construction of this picture
+  int comboDepth();
+  
+  // mirrors this picture
+  IPicture mirror();
+  
+  // produces a string representing the contents of this picture
+  String pictureRecipe(int depth);
+}
+
+// to represent a simple shape
+class Shape implements IPicture {
+  String kind; // "circle", "square"
+  int size; // assume that width equals height
+  
+  Shape(String kind, int size) {
+    this.kind = kind;
+    this.size = size;
+  }
+  
+  /* TEMPLATE
+  FIELDS:
+  ... this.kind ...                   -- String
+  ... this.size ...                   -- int
+
+  METHODS
+  ... this.getWidth() ...                 -- int
+  ... this.countShapes() ...              -- int
+  ... this.comboDepth() ...               -- int
+  ... this.mirror() ...                   -- IPicture
+  ... this.pictureRecipe(int depth) ...   -- String
+*/
+
+  // computes the overall width of this picture
+  public int getWidth() {
+    return this.size;
+  } 
+  
+  // computes the number of single shapes involved in producing the final image
+  public int countShapes() {
+    return 1;
+  }
+  
+  //computes how deeply operations are nested in the construction of this picture
+  public int comboDepth() {
+    return 0;
+  }
+  
+  // mirrors this shape where it leaves the entire picture unchanged
+  public IPicture mirror() {
+    return this;
+    //new Shape(this.kind, this.size); 
+  }
+  
+  //produces a string representing the contents of this picture
+  public String pictureRecipe(int depth) {
+    return this.kind;
+  }
+}
+
+// to represent a combo shape
+class Combo implements IPicture {
+  String name; // describing the resulting picture
+  IOperation operation; // how the image was put together
+  
+  Combo(String name, IOperation operation) {
+    this.name = name;
+    this.operation = operation;
+  }
+  
+  /* TEMPLATE
+  FIELDS:
+  ... this.name ...                   -- String
+  ... this.operation ...              -- IOperation
+
+  METHODS
+  ... this.getWidth() ...                 -- int
+  ... this.countShapes()...               -- int
+  ... this.comboDepth() ...               -- int
+  ... this.mirror() ...                   -- IOperation
+  ... this.pictureRecipe(int depth) ...   -- String
+*/
+  
+  // computes the overall width of this picture.
+  public int getWidth() {
+    return this.operation.getWidth();
+  }
+  
+  // computes the number of single shapes involved in producing the final image
+  public int countShapes() {
+    return this.operation.countShapes();
+  }
+  
+  //computes how deeply operations are nested in the construction of this picture
+  public int comboDepth() {
+    return this.operation.comboDepth();
+  }
+  
+  //mirrors this shape where it leaves the entire picture unchanged
+  public IPicture mirror() {
+    return new Combo(this.name, this.operation.mirror());
+  }
+   
+  //produces a string representing the contents of this picture
+  public String pictureRecipe(int depth) {
+    if (depth == 0) {
+      return this.name;
+    } else {
+      return this.operation.pictureRecipe(depth - 1);
+    }
+  }
+}
+
+// to represent an operation
+interface IOperation {
+  
+  //computes the overall width of this picture
+  int getWidth();
+  
+  //computes the number of single shapes involved in producing the final image
+  int countShapes();
+  
+  //computes how deeply operations are nested in the construction of this picture
+  int comboDepth();
+  
+  // mirrors this shape where it leaves the entire picture unchanged
+  IOperation mirror();
+  
+  //produces a string representing the contents of this picture
+  String pictureRecipe(int depth);   
+}
+
+// to represent the scaling operation
+class Scale implements IOperation {
+  IPicture picture; // twice as large as the original
+  
+  Scale(IPicture picture) {
+    this.picture = picture;
+  }
+  
+  /* TEMPLATE
+  FIELDS:
+  ... this.picture ...                  -- IPicture 
+ 
+
+  METHODS
+  ... this.getWidth() ...                 -- int
+  ... this.countShapes() ...              -- int
+  ... this.comboDepth() ...               -- int
+  ... this.mirror() ...                   -- IOperation
+  ... this.pictureRecipe (int depth) ...  -- String
+
+*/
+  
+  // computes the overall width of this picture
+  public int getWidth() {
+    return this.picture.getWidth() * 2;
+  }
+  
+  //computes the number of single shapes involved in producing the final image
+  public int countShapes() {
+    return this.picture.countShapes();
+    }
+  
+  //computes how deeply operations are nested in the construction of this picture
+  public int comboDepth() {
+    return 1 + this.picture.comboDepth();
+    }
+  
+  // mirrors this shape where it leaves the entire picture unchanged
+  public IOperation mirror() {
+    return this;
+    }
+  
+  //produces a string representing the contents of this picture
+  public String pictureRecipe(int depth) {
+    return "scale(" + this.picture.pictureRecipe(depth) + ")";
+    }
+  }
+
+// to represent the beside operation
+class Beside implements IOperation {
+  IPicture picture1; // picture1 to the left of picture2
+  IPicture picture2;
+  
+  Beside(IPicture picture1, IPicture picture2) {
+    this.picture1 = picture1;
+    this.picture2 = picture2;
+  }
+  
+  /* TEMPLATE
+  FIELDS:
+  ... this.picture1 ...                  -- IPicture
+  ... this.picture2 ...                  -- IPicture 
+ 
+
+  METHODS
+  ... this.getWidth() ...                 -- int
+  ... this.countShapes() ...              -- int
+  ... this.comboDepth() ...               -- int
+  ... this.mirror() ...                   -- IOperation
+  ... this.pictureRecipe (int depth) ...  -- String
+
+*/
+  
+  // computes the overall width of this picture
+  public int getWidth() {
+    return this.picture1.getWidth() + this.picture2.getWidth();
+    }
+  
+  //computes the number of single shapes involved in producing the final image
+  public int countShapes() {
+    return this.picture1.countShapes() + this.picture2.countShapes();
+    }
+  
+  //computes how deeply operations are nested in the construction of this picture
+  public int comboDepth() {
+    if (this.picture1.comboDepth() >= this.picture2.comboDepth()) {
+      return 1 + this.picture1.comboDepth();
+      } else {
+       return 1 + this.picture2.comboDepth();
+       }
+    }
+  
+  //mirrors this shape where it leaves the entire picture unchanged
+  public IOperation mirror() {
+    return new Beside(this.picture2.mirror(), this.picture1.mirror());
+    }
+ 
+ //produces a string representing the contents of this picture
+  public String pictureRecipe(int depth) {
+    return "beside(" + this.picture1.pictureRecipe(depth) 
+   + ", " + this.picture2.pictureRecipe(depth) + ")";
+    }
+  }
+
+// to represent the overlay operation
+class Overlay implements IOperation {
+  IPicture topPicture; // top-picture on top of bottom-picture
+  IPicture bottomPicture;
+  
+  Overlay(IPicture topPicture, IPicture bottomPicture) {
+    this.topPicture = topPicture;
+    this.bottomPicture = bottomPicture;
+  }
+  
+  /* TEMPLATE
+  FIELDS:
+  ... this.picture1 ...                  -- IPicture
+  ... this.picture2 ...                  -- IPicture 
+ 
+
+  METHODS
+  ... this.getWidth() ...                 -- int
+  ... this.countShapes() ...              -- int
+  ... this.comboDepth() ...               -- int
+  ... this.mirror() ...                   -- IOperation
+  ... this.pictureRecipe (int depth) ...  -- String
+
+*/
+  
+  //computes the overall width of this picture
+  public int getWidth() {
+    if (this.topPicture.getWidth() >= this.bottomPicture.getWidth()) {
+      return this.topPicture.getWidth();
+    } else {
+      return this.bottomPicture.getWidth();
+    }
+  }
+  
+  //computes the number of single shapes involved in producing the final image
+  public int countShapes() {
+    return this.topPicture.countShapes() + this.bottomPicture.countShapes();
+  }
+  
+  //computes how deeply operations are nested in the construction of this picture
+  public int comboDepth() {
+    return 1 + this.topPicture.comboDepth() + this.bottomPicture.comboDepth();
+  }
+  
+  //mirrors this shape where it leaves the entire picture unchanged
+  public IOperation mirror() {
+    return new Overlay(this.topPicture.mirror(), this.bottomPicture.mirror());
+    }
+  
+  //produces a string representing the contents of this picture
+  public String pictureRecipe(int depth) {
+    return "overlay(" + this.topPicture.pictureRecipe(depth) 
+    + ", " + this.bottomPicture.pictureRecipe(depth) + ")";
+    }
+  }
+
+// to represent examples of pictures
+class ExamplesPicture {
+  ExamplesPicture() {}
+  
+  IPicture circle = new Shape("circle", 20);
+  IPicture square = new Shape("square", 30);
+  IPicture bigCircle = new Combo("big circle", new Scale(circle));
+  IPicture squareOnCircle = new Combo("square on circle", new Overlay(square, bigCircle));
+  IPicture doubledSquareOnCircle = new Combo("doubled square on circle", 
+      new Beside(squareOnCircle, squareOnCircle));
+  IPicture doubledCircle = new Combo("doubled circle", new Beside(circle, circle));
+  IPicture circleOnBigCircle = new Combo("circle on big circle", new Overlay(circle, bigCircle));
+  IPicture bigSquare = new Combo("big sqaure", new Scale(square));
+  IPicture circleSquare = new Combo("circle square", new Beside(circle, square));
+  IPicture circleSquareAndDoubledCircle = new Combo("circleSquareAndDoubledCircle", 
+      new Beside(circleSquare, doubledCircle));
+  
+  // test the method getWidth
+  boolean testGetWidth(Tester t) {
+    return
+        t.checkExpect(this.circle.getWidth(), 20)
+        && t.checkExpect(this.doubledCircle.getWidth(), 40)
+        && t.checkExpect(this.circleOnBigCircle.getWidth(), 40)
+        && t.checkExpect(this.bigSquare.getWidth(), 60)
+        && t.checkExpect(this.doubledSquareOnCircle.getWidth(), 80);
+  }
+  
+  // test the method countShapes
+  boolean testcountShapes(Tester t) {
+    return
+        t.checkExpect(this.square.countShapes(), 1)
+        && t.checkExpect(this.circle.countShapes(), 1)
+        && t.checkExpect(this.bigCircle.countShapes(), 1)
+        && t.checkExpect(this.doubledSquareOnCircle.countShapes(), 4) //failed
+        && t.checkExpect(this.squareOnCircle.countShapes(), 2)
+        && t.checkExpect(this.bigSquare.countShapes(), 1);
+  }
+
+  
+  // test the method comboDepth
+  boolean testcomboDepth(Tester t) {
+    return
+        t.checkExpect(this.circle.comboDepth(), 0)
+        && t.checkExpect(this.doubledSquareOnCircle.comboDepth(), 3)
+        && t.checkExpect(this.doubledCircle.comboDepth(), 1) 
+        && t.checkExpect(this.circleOnBigCircle.comboDepth(), 2)       
+        && t.checkExpect(this.bigSquare.comboDepth(), 1);
+  }
+  
+  // test the method mirror
+  boolean testmirror(Tester t) {
+    return
+        t.checkExpect(this.square.mirror(), this.square)
+        && t.checkExpect(this.bigCircle.mirror(), this.bigCircle)
+        && t.checkExpect(this.squareOnCircle.mirror(), this.squareOnCircle)
+        && t.checkExpect(this.bigSquare.mirror(), this.bigSquare)
+        && t.checkExpect(this.doubledSquareOnCircle.mirror(), new Combo("doubled square on circle", 
+            new Beside(squareOnCircle, squareOnCircle))) 
+        && t.checkExpect(this.doubledCircle.mirror(), 
+            new Combo("doubled circle", new Beside(circle, circle)))
+        && t.checkExpect(this.circleSquare.mirror(), 
+            new Combo("circle square", new Beside(square, circle)))
+        && t.checkExpect(this.circleSquareAndDoubledCircle.mirror(),
+            new Combo("circleSquareAndDoubledCircle", new Beside(doubledCircle, new 
+                Combo("circle square", new Beside(this.square, this.circle)))));
+  }
+  
+  // test the method pictureRecipe
+  boolean testpictureRecipe(Tester t) {
+    return
+        t.checkExpect(this.circle.pictureRecipe(0), "circle")
+        && t.checkExpect(this.square.pictureRecipe(6), "square")
+        && t.checkExpect(this.bigCircle.pictureRecipe(0), "big circle")
+        && t.checkExpect(this.bigCircle.pictureRecipe(2), "scale(circle)")
+        && t.checkExpect(this.squareOnCircle.pictureRecipe(1), "overlay(square, big circle)")
+        && t.checkExpect(this.squareOnCircle.pictureRecipe(2), "overlay(square, scale(circle))")
+        && t.checkExpect(this.doubledSquareOnCircle.pictureRecipe(0), "doubled square on circle")
+        && t.checkExpect(this.doubledSquareOnCircle.pictureRecipe(2), 
+            "beside(overlay(square, big circle), overlay(square, big circle))")
+        && t.checkExpect(this.doubledSquareOnCircle.pictureRecipe(3), 
+            "beside(overlay(square, scale(circle)), overlay(square, scale(circle)))")
+        && t.checkExpect(this.doubledSquareOnCircle.pictureRecipe(5), 
+            "beside(overlay(square, scale(circle)), overlay(square, scale(circle)))");
+  } 
+}
+
+
+

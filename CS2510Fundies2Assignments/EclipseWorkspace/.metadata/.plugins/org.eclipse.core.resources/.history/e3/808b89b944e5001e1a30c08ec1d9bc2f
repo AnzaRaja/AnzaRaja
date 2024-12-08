@@ -1,0 +1,53 @@
+import java.util.ArrayList;
+//import tester.Tester;
+
+// to represent an tree
+interface Tree {
+
+}
+
+// to represent the Huffman class
+class Huffman {
+  ArrayList<String> letters;
+  ArrayList<Integer> frequencies;
+
+  Huffman(ArrayList<String> letters, ArrayList<Integer> frequencies) {
+    if (letters.size() != frequencies.size()) {
+      throw new IllegalArgumentException("lists are different lengths");
+    }
+    else {
+      if (letters.size() < 2) {
+        throw new IllegalArgumentException("length of list of strings < 2");
+      } else {
+        this.letters = letters;
+        this.frequencies = frequencies;
+      }
+    }
+  }
+}
+
+// to represent a single node
+class HuffmanNode implements Tree {
+  char data;
+  int frequency;
+  HuffmanNode left;
+  HuffmanNode right;
+
+  HuffmanNode(char data, int frequency) {
+    this.data = data;
+    this.frequency = frequency;
+    left = null;
+    right = null;
+  }
+}
+
+// to represent a leaf
+class Leaf implements Tree {
+  char data;
+  int frequency;
+
+  Leaf(char data, int frequency) {
+    this.data = data;
+    this.frequency = frequency;
+  }
+}

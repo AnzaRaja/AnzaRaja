@@ -1,0 +1,62 @@
+import tester.Tester;
+
+boolean containsSequence(ArrayList<Integer> source, ArrayList<Integer> sequence) {
+  if (sequence.size() > source.size()) {
+    return false;
+  }
+  for(int i = 0; i <= source.size(); i++) {
+    boolean isSequence = true;
+    
+      for (int j = 0; j <= sequence.size(); j++) {
+        if (!(source.get(i + j) == sequence.get(j)) && isSequence == true) {
+          isSequence = false;
+        }
+      }
+    if (isSequence) {
+      return true;
+    }
+  }
+  return false;
+}
+
+class Deque<T> {
+Sentinel<T> header;
+// Returns the number of items in this Deque (excluding the sentinel) int size();
+// EFFECT: inserts the given value at the front of the Deque
+void addToHead(T value) {
+}
+// EFFECT: inserts the given value at the back of the Deque
+void addToTail(T value) {
+}
+// Returns the current first item of the Deque
+// EFFECT: removes the current first item of the Deque
+T removeFromHead() {
+  return null;
+}
+// Returns the current last item of the Deque
+// EFFECT: removes the current last item of the Deque
+T removeFromTail() {
+  return null;
+}
+
+void addAll(Deque<T> that) {
+  int size = that.size();
+  
+  for (int i = 0; i < size; i++) {
+    this.addToTail(that.removeFromHead());
+  }
+  }
+}
+
+class ANode<T> {
+  ANode<T> next;
+  ANode<T> prev;
+}
+
+class Sentinel<T> extends ANode<T> { 
+  
+} 
+
+class Node<T> extends ANode<T> {
+T data; 
+}

@@ -1,0 +1,352 @@
+import tester.*;
+//import java.util.Random;
+import javalib.worldimages.*;
+import javalib.funworld.*;
+import javalib.worldcanvas.WorldCanvas;
+
+import java.awt.Color;
+
+class ZTypeWorld extends World {
+  int WORLDSCENE_HEIGHT = 900;
+  int WORLDSCENE_WIDTH = 600;
+
+  ILoWord ILoWord;
+
+  ZTypeWorld(ILoWord ILoWord) {
+    this.ILoWord = ILoWord;
+  }
+
+  /*- TEMPLATE
+  FIELDS:
+  ... this.ILoWord ...                    -- ILoWord
+  
+  METHODS
+  ... this.makeScene()...                 -- WorldScene
+  ...  ...                                -- 
+  
+  METHODS for fields:
+  ...  ...                           -- 
+  ...  ...                      -- 
+  */
+
+//draws the words onto the background
+  public WorldScene makeScene() {
+    return this.ILoWord.draw(new WorldScene(WORLDSCENE_WIDTH, WORLDSCENE_HEIGHT));
+  }
+}
+
+interface ILoWord {
+
+  // takes in a WorldScene and draws all of the words in this ILoWord onto the
+  // given WorldScene
+  WorldScene draw(WorldScene worldScene);
+
+}
+
+//represents an empty list of words
+class MtLoWord implements ILoWord {
+
+  /*- TEMPLATE
+  FIELDS:
+  
+  METHODS
+  ... this.draw() ...               -- WorldScene
+  METHODS for fields
+  
+  */
+
+//draws Words from this empty list onto the accumulated
+  // image of the scene so far
+  public WorldScene draw(WorldScene acc) {
+    return acc;
+  }
+}
+
+class ConsLoWord implements ILoWord {
+  IWord first;
+  ILoWord rest;
+
+  ConsLoWord(IWord first, ILoWord rest) {
+    this.first = first;
+    this.rest = rest;
+  }
+
+  /*- TEMPLATE
+  FIELDS:
+  ... this.first ...                   -- IWord
+  ... this.rest ...                    -- ILoWord
+  
+  METHODS
+  ... this.draw() ...               -- WorldScene
+  ...  ...                          -- 
+  
+  METHODS for fields:
+  ...  ...                           -- 
+  ...  ...                      -- 
+  */
+
+  // takes in a WorldScene and draws all of the words in this ILoWord onto the
+  // current WorldScene
+  public WorldScene draw(WorldScene acc) {
+    return this.rest.draw(this.first.drawText(acc));
+  }
+}
+
+//represents a word in the ZType game
+interface IWord {
+  int TEXT_SIZE = 24;
+  Color ACTIVEWORD_COLOR = Color.green;
+  Color INACTIVEWORD_COLOR = Color.red;
+
+  // draw this word as Image
+  WorldImage draw();
+
+  // to draw an IWord as text
+  WorldScene drawText(WorldScene worldScene);
+}
+
+//represents an active word in the ZType game
+class ActiveWord implements IWord {
+  String word;
+  int x;
+  int y;
+
+  ActiveWord(String word, int x, int y) {
+    this.word = word;
+    this.x = x;
+    this.y = y;
+  }
+
+  /*- TEMPLATE
+  FIELDS:
+  ... this.word ...                 -- String
+  ... this.x ...                    -- int
+  ... this.y ...                    -- int
+  
+  METHODS
+  ... this.draw() ...               -- WorldImage
+  ... this.drawText() ...           -- WorldScene
+  METHODS for fields:
+  
+  */
+
+  // draw this word as Image
+  public WorldImage draw() {
+    return (new TextImage(this.word, TEXT_SIZE, FontStyle.BOLD, ACTIVEWORD_COLOR));
+  }
+
+  // To draw an IWord as text
+  public WorldScene drawText(WorldScene worldScene) {
+    return worldScene.placeImageXY(
+        new TextImage(this.word, TEXT_SIZE, FontStyle.BOLD, ACTIVEWORD_COLOR), this.x, this.y);
+  }
+}
+
+//represents an inactive word in the ZType game
+class InactiveWord implements IWord {
+  String word;
+  int x;
+  int y;
+
+  InactiveWord(String word, int x, int y) {
+    this.word = word;
+    this.x = x;
+    this.y = y;
+  }
+
+  /*- TEMPLATE
+  FIELDS:
+  ... this.word ...                 -- String
+  ... this.x ...                    -- int
+  ... this.y ...                    -- int
+  
+  METHODS
+  ... this.draw() ...               -- WorldImage
+  ... this.drawText() ...           -- WorldScene
+  METHODS for fields:
+  
+  */
+
+  // draw this word as Image
+  public WorldImage draw() {
+    return (new TextImage(this.word, TEXT_SIZE, FontStyle.BOLD, INACTIVEWORD_COLOR));
+  }
+
+  // To draw an IWord as text
+  public WorldScene drawText(WorldScene worldScene) {
+    return worldScene.placeImageXY(
+        new TextImage(this.word, TEXT_SIZE, FontStyle.BOLD, INACTIVEWORD_COLOR), this.x, this.y);
+  }
+}
+
+//all examples and tests for ILoWord
+class ExamplesWordLists {
+  ExamplesWordLists() {
+
+  }
+
+// IWords
+  IWord butterfly = new ActiveWord("butterfly", 70, 100);
+  IWord ant = new InactiveWord("ant", 60, 30);
+  IWord bee = new ActiveWord("bee", 450, 450);
+  IWord ladybug = new ActiveWord("ladybug", 100, 300);
+  IWord beetle = new InactiveWord("beetle", 14, 29);
+
+  IWord cake = new ActiveWord("cake", 1, 1);
+  IWord yoghurt = new ActiveWord("yoghurt", 1, 1);
+  IWord pudding = new InactiveWord("pudding", 1, 1);
+  IWord pie = new ActiveWord("pie", 1, 1);
+
+  IWord rhino = new ActiveWord("rhino", 1, 1);
+  IWord giraffe = new InactiveWord("giraffe", 1, 1);
+  IWord lion = new InactiveWord("lion", 1, 1);
+  IWord zebra = new ActiveWord("zebra", 1, 1);
+  IWord crocodile = new ActiveWord("crocodile", 1, 1);
+  IWord buffalo = new InactiveWord("buffalo", 1, 1);
+
+  IWord red = new InactiveWord("red", 3, 2);
+  IWord orange = new ActiveWord("orange", 6, 10);
+  IWord green = new ActiveWord("green", 1, 1);
+  IWord yellow = new ActiveWord("Yellow", 9, 15);
+  IWord purple = new InactiveWord("Purple", 1, 1);
+
+  IWord sam = new ActiveWord("Sam", 40, 300);
+  IWord kate = new ActiveWord("Kate", 60, 50);
+  IWord alison = new ActiveWord("Alison", 80, 70);
+  IWord jake = new ActiveWord("Jake", 100, 90);
+  IWord izzy = new ActiveWord("Izzy", 120, 100);
+  IWord lara = new InactiveWord("Lara", 140, 120);
+  IWord dan = new ActiveWord("Dan", 160, 150);
+  IWord viki = new InactiveWord("Viki", 180, 210);
+  IWord amy = new InactiveWord("Amy", 200, 230);
+
+  IWord mtStringActive = new ActiveWord("", 30, 50);
+  IWord mtStringInactive = new InactiveWord("", 27, 9);
+
+  ILoWord mtList = new MtLoWord(); // sorted
+
+  ILoWord list1 = new ConsLoWord(this.butterfly, new ConsLoWord(this.ant,
+      new ConsLoWord(this.bee, new ConsLoWord(this.ladybug, this.mtList))));
+
+  ILoWord list2 = new ConsLoWord(this.cake, new ConsLoWord(this.yoghurt,
+      new ConsLoWord(this.pudding, new ConsLoWord(this.pie, this.mtList))));
+
+  ILoWord list3 = new ConsLoWord(this.rhino,
+      new ConsLoWord(this.giraffe, new ConsLoWord(this.lion, new ConsLoWord(zebra,
+          new ConsLoWord(this.crocodile, new ConsLoWord(this.buffalo, this.mtList))))));
+
+  ILoWord list4 = new ConsLoWord(this.red,
+      new ConsLoWord(this.orange, new ConsLoWord(this.yellow, this.mtList)));
+
+  ILoWord list5 = new ConsLoWord(this.yellow,
+      new ConsLoWord(this.purple, new ConsLoWord(this.yellow, this.mtList)));
+
+  ILoWord list6 = new ConsLoWord(this.red,
+      new ConsLoWord(this.yellow, new ConsLoWord(this.purple, this.mtList)));
+
+  ILoWord list7 = new ConsLoWord(this.sam,
+      new ConsLoWord(this.kate, new ConsLoWord(this.alison, this.mtList)));
+
+  ILoWord list8 = new ConsLoWord(this.kate,
+      new ConsLoWord(this.alison,
+          new ConsLoWord(this.jake, new ConsLoWord(this.izzy, new ConsLoWord(this.lara,
+              new ConsLoWord(this.dan, new ConsLoWord(this.viki, this.mtList)))))));
+
+  ILoWord list9 = new ConsLoWord(this.cake,
+      new ConsLoWord(this.pie, new ConsLoWord(this.cake, this.mtList)));
+
+  ILoWord list10 = new ConsLoWord(this.cake, new ConsLoWord(this.pie, new ConsLoWord(this.cake,
+      new ConsLoWord(this.pie, new ConsLoWord(this.pudding, this.mtList)))));
+
+  ILoWord list11 = new ConsLoWord(this.sam, new ConsLoWord(this.kate, new ConsLoWord(this.alison,
+      new ConsLoWord(this.kate, new ConsLoWord(this.sam, new ConsLoWord(this.dan, this.mtList))))));
+
+  ILoWord list12 = new ConsLoWord(this.red, new ConsLoWord(this.yellow,
+      new ConsLoWord(this.purple, new ConsLoWord(this.yellow, new ConsLoWord(red, this.mtList)))));
+
+//sorted lists
+  ILoWord list13 = new ConsLoWord(this.ant, new ConsLoWord(this.bee, this.mtList));
+
+  ILoWord list14 = new ConsLoWord(this.alison, new ConsLoWord(this.dan, this.mtList));
+
+  ILoWord list15 = new ConsLoWord(this.ant, this.mtList);
+
+  ILoWord list16 = new ConsLoWord(this.lara, this.mtList);
+
+  ILoWord list17 = new ConsLoWord(this.purple,
+      new ConsLoWord(this.red, new ConsLoWord(this.yellow, this.mtList)));
+
+  ILoWord list18 = new ConsLoWord(this.alison, new ConsLoWord(this.dan, new ConsLoWord(this.kate,
+      new ConsLoWord(this.kate, new ConsLoWord(this.sam, new ConsLoWord(this.sam, this.mtList))))));
+
+  ILoWord list19 = new ConsLoWord(this.lion,
+      new ConsLoWord(this.lion, new ConsLoWord(this.rhino, this.mtList)));
+
+  // IWords with empty strings
+  ILoWord list20 = new ConsLoWord(this.purple, new ConsLoWord(this.red,
+      new ConsLoWord(this.yellow, new ConsLoWord(this.mtStringActive, this.mtList))));
+
+  ILoWord list21 = new ConsLoWord(this.purple, new ConsLoWord(this.red,
+      new ConsLoWord(this.yellow, new ConsLoWord(this.mtStringInactive, this.mtList))));
+
+  ILoWord list22 = new ConsLoWord(this.purple,
+      new ConsLoWord(this.mtStringInactive, new ConsLoWord(this.red,
+          new ConsLoWord(this.yellow, new ConsLoWord(this.mtStringActive, this.mtList)))));
+
+  ILoWord list23 = new ConsLoWord(this.purple, new ConsLoWord(this.ant,
+      new ConsLoWord(this.cake, new ConsLoWord(this.ant, new ConsLoWord(this.cake, this.mtList)))));
+
+  // WorldScenes
+  WorldScene blankWorldScene = new WorldScene(600, 800);
+
+  WorldScene antWorldScene = this.blankWorldScene
+      .placeImageXY(new TextImage("ant", 24, FontStyle.BOLD, Color.RED), 60, 30);
+
+  WorldScene list4WorldScene = this.blankWorldScene
+      .placeImageXY(new TextImage("red", 24, FontStyle.BOLD, Color.RED), 3, 2)
+      .placeImageXY(new TextImage("orange", 24, FontStyle.BOLD, Color.GREEN), 6, 10)
+      .placeImageXY(new TextImage("Yellow", 24, FontStyle.BOLD, Color.GREEN), 9, 15);
+
+  WorldScene list1And4WorldScene = this.list4WorldScene
+      .placeImageXY(new TextImage("butterfly", 24, FontStyle.BOLD, Color.GREEN), 70, 100)
+      .placeImageXY(new TextImage("ant", 24, FontStyle.BOLD, Color.RED), 60, 30)
+      .placeImageXY(new TextImage("bee", 24, FontStyle.BOLD, Color.GREEN), 450, 450)
+      .placeImageXY(new TextImage("ladybug", 24, FontStyle.BOLD, Color.GREEN), 100, 300);
+  
+  WorldScene list1And4And14WorldScene = this.list4WorldScene
+      .placeImageXY(new TextImage("butterfly", 24, FontStyle.BOLD, Color.GREEN), 70, 100)
+      .placeImageXY(new TextImage("ant", 24, FontStyle.BOLD, Color.RED), 60, 30)
+      .placeImageXY(new TextImage("bee", 24, FontStyle.BOLD, Color.GREEN), 450, 450)
+      .placeImageXY(new TextImage("ladybug", 24, FontStyle.BOLD, Color.GREEN), 100, 300)
+      .placeImageXY(new TextImage("Alison", 24, FontStyle.BOLD, Color.GREEN), 80, 70)
+      .placeImageXY(new TextImage("Dan", 24, FontStyle.BOLD, Color.GREEN), 160, 150);
+
+  // test method for worldScene
+  boolean testDraw(Tester t) {
+    return t.checkExpect(this.list15.draw(this.blankWorldScene), this.antWorldScene)
+        // empty scene and list with one element
+
+        && t.checkExpect(this.mtList.draw(this.blankWorldScene), this.blankWorldScene)
+        // empty list
+
+        && t.checkExpect(this.list4.draw(this.blankWorldScene), this.list4WorldScene)
+        // empty scene and list with more than one element and active and inactive words
+        
+        && t.checkExpect(this.list1.draw(this.list4WorldScene), this.list1And4WorldScene)
+        // non-empty scene with list of words
+        
+        && t.checkExpect(this.list14.draw(this.list1And4WorldScene), this.list1And4And14WorldScene);
+        // non-empty scene with list of words  
+  }
+
+  
+    //to display WorldScene 
+  boolean testDrawWords(Tester t) { 
+    WorldCanvas c1 = new WorldCanvas(600, 800); 
+   // WorldScene s1 = new WorldScene(500, 500).
+   //placeImageXY (new RectangleImage(500, 500, "solid", Color.BLACK), 250,
+   // 250); 
+        return c1.drawScene(this.list1.draw(list1And4And14WorldScene)) && c1.show();}
+   
+
+}

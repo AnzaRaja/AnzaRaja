@@ -1,0 +1,115 @@
+//import tester.Tester;
+
+// Represents the empty List of Accounts
+class MtLoAccount implements ILoAccount {
+
+  MtLoAccount() {
+  }
+}
+
+//Represents a non-empty List of Accounts...
+class ConsLoAccount implements ILoAccount {
+
+  Account first;
+  ILoAccount rest;
+
+  public ConsLoAccount(Account first, ILoAccount rest) {
+    this.first = first;
+    this.rest = rest;
+  }
+
+  /*
+   * Template Fields: ... this.first ... --- Account ... this.rest ... ---
+   * ILoAccount
+   *
+   * Methods:
+   *
+   * Methods for Fields:
+   *
+   */
+}
+
+//Represents a List of Accounts
+interface ILoAccount {
+
+}
+
+//Represents a Bank with list of accounts
+class Bank {
+
+  String name;
+  ILoAccount accounts;
+
+  Bank(String name, ILoAccount accounts) {
+    this.name = name;
+    this.accounts = accounts;
+  }
+
+}
+
+//Represents a bank account
+abstract class Account {
+
+  int accountNum; // Must be unique
+  int balance; // Must remain above zero (others Accts have more restrictions)
+  String name; // Name on the account
+
+  Account(int accountNum, int balance, String name) {
+    this.accountNum = accountNum;
+    this.balance = balance;
+    this.name = name;
+  }
+}
+
+// Represents a savings account
+class Savings extends Account {
+
+  double interest; // The interest rate
+
+  Savings(int accountNum, int balance, String name, double interest) {
+    super(accountNum, balance, name);
+    this.interest = interest;
+  }
+}
+
+//Represents a credit line account
+class Credit extends Account {
+
+  int creditLine; // Maximum amount accessible
+  double interest; // The interest rate charged
+
+  Credit(int accountNum, int balance, String name, int creditLine, double interest) {
+    super(accountNum, balance, name);
+    this.creditLine = creditLine;
+    this.interest = interest;
+  }
+}
+
+//Represents a checking account
+class Checking extends Account {
+
+  int minimum; // The minimum account balance allowed
+
+  Checking(int accountNum, int balance, String name, int minimum) {
+    super(accountNum, balance, name);
+    this.minimum = minimum;
+  }
+}
+
+//Bank Account Examples and Tests
+class Examples {
+
+  Examples() {
+  }
+  
+  Savings savings1 = new Savings(1234, 2300, "Anna Kon", 7);
+  Savings savings2 = new Savings(5678, 7000, "Bella Otero", 7.5);
+  Credit credit1 = new Credit(9101, 40000, "Anna Kon", 20000, 11);
+  Credit credit2 = new Credit(1213, 33000, "Jake Tap", 16000, 10);
+  Checking checking1 = new Checking(1415, 25000, "Ella Simon", 1000);
+  Checking checking2 = new Checking(1617, 50030, "Matt Pave", 2000);
+  
+
+
+
+}

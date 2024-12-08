@@ -1,0 +1,71 @@
+import tester.Tester;
+import java.awt.Color;
+
+// to represent a ball
+class Ball {
+  CartPt center;
+  int radius;
+  Color color;
+ 
+  // the constructor
+  Ball(CartPt center, int radius, Color color) {
+    this.center = center;
+    this.radius = radius;
+    this.color = color;
+  }
+  
+// returns the area of this ball
+ double area() {
+   return Math.PI * Math.pow(this.radius, 2);
+ }
+
+ // returns the circumference of this ball
+ double circumference() {
+   return 2 * Math.PI * Math.pow(this.radius, 1);
+ }
+  
+  /* Template will go here. */
+  /* TEMPLATE:
+  Fields:
+  ... this.center ...         -- int
+  ... this.radius ...        -- int
+  ... this.color ...         -- String
+*/
+  
+  /* Method definitions will go here. */
+}
+
+ // to represent a Cartesian point
+class CartPt {
+  int x;
+  int y;
+ 
+  // the constructor
+  CartPt(int x, int y) {
+    this.x = x;
+    this.y = y;
+  }
+  
+  /* Template will go here. */
+  /* TEMPLATE:
+  Fields:
+  ... this.x ...         -- int
+  ... this.y ...        -- int
+*/
+  
+}
+
+
+class ExamplesBall {
+  Ball b = new Ball(new CartPt(0, 0), 5, Color.BLUE);
+  
+  boolean testBall(Tester t) {
+    return t.checkInexact(b.area(), 78.5, 0.001);
+  }
+  
+  boolean testBall(Tester t) {
+    return t.checkInexact(b.circumference(), 31.4, 0.001);
+  }
+}
+
+

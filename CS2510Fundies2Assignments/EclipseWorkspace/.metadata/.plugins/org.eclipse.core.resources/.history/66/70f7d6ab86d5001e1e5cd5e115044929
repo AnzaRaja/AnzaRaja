@@ -1,0 +1,72 @@
+//import tester.Tester;
+
+// to represent a list of courses
+interface ILoCourse {
+
+}
+
+// represents an empty list of courses
+class MtLoCourse implements ILoCourse {
+
+}
+
+// represents a list of courses with one or more elements
+class ConsLoCourse implements ILoCourse {
+  String first;
+  ILoCourse rest;
+
+  ConsLoCourse(String first, ILoCourse rest) {
+    this.first = first;
+    this.rest = rest;
+  }
+}
+
+// to represent one of instructor or student
+interface IPerson {
+
+}
+
+// to represent an instructor
+class Instructor implements IPerson {
+  String name;
+  ILoCourse courses;
+
+  Instructor(String name, ILoCourse courses) {
+    this.name = name;
+    this.courses = courses;
+  }
+}
+
+// to represent a student
+class Student implements IPerson {
+  String name;
+  int idNum;
+  ILoCourse courses;
+
+  Student(String name, int idNum, ILoCourse courses) {
+    this.name = name;
+    this.idNum = idNum;
+    this.courses = courses;
+  }
+}
+
+class ExamplesRegistrar {
+  ILoCourse mtLoCourse = new MtLoCourse();
+  
+  ILoCourse courseList1 = new ConsLoCourse("Environmental Science",  mtLoCourse);
+  
+  ILoCourse courseList2 = new ConsLoCourse("Calculus 1", new ConsLoCourse("Calculus 2", new ConsLoCourse
+      ("English Writing", mtLoCourse)));
+  
+  ILoCourse courseList3 = new ConsLoCourse("General Biology 1", new ConsLoCourse("General Biology 2", 
+      new ConsLoCourse("English Writing", mtLoCourse)));
+  
+  IPerson student1 = new Student("Jane", 123456, mtLoCourse);
+  IPerson student2 = new Student("Alicia", 789101, mtLoCourse);
+  IPerson student3 = new Student("Max", 112131, mtLoCourse);
+  IPerson student4 = new Student("Valerie", 415161, mtLoCourse);
+  IPerson student5 = new Student("Hari", 718192, mtLoCourse);
+  IPerson student6 = new Student("Josh", 021222, mtLoCourse);
+  IPerson student7 = new Student("Ashley", 324252, mtLoCourse);
+  IPerson student8 = new Student("Devan", 627282, mtLoCourse);
+}

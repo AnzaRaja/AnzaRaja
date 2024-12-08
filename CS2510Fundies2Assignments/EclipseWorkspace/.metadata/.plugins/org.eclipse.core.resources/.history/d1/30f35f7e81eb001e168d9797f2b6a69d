@@ -1,0 +1,65 @@
+import java.util.ArrayList;
+import java.util.Iterator;
+import tester.Tester;
+
+// to represent a pair
+class Pair<L, R> {
+  L left;
+  R right;
+
+  Pair(L left, R right) {
+    this.left = left;
+    this.right = right;
+  }
+
+  // return an Iterator of pairs of corresponding elements. If the lists are of
+  // different sizes, an exception should be thrown.
+  <X, Y> Iterator<Pair<X, Y>> zipStrict(ArrayList<X> arr1, ArrayList<Y> arr2) {
+    if (arr1.size() != arr2.size()) {
+      throw new IllegalArgumentException("Lists are of different lengths");
+    }
+    return new Iterator<Pair<X, Y>>() {
+      int index = 0;
+
+      // Does this sequence (of items in the array list) have at least one more value?
+      public boolean hasNext() {
+        return index < arr1.size();
+      }
+
+      // get next item
+      public Pair<X, Y> next() {
+        if (!hasNext()) {
+          throw new IllegalStateException("No more elements in the iterator");
+        }
+
+        Pair<X, Y> pair = new Pair<>(arr1.get(index), arr2.get(index));
+        index++;
+        return pair;
+      }
+    };
+  }
+
+  // return an Iterator of pairs of corresponding elements. If the lists are of
+  // different sizes, only return pairs up to the size of the shorter one.
+  <X, Y> Iterator<Pair<X, Y>> zipLists(ArrayList<X> arr1, ArrayList<Y> arr2) {
+    ArrayList<Pair<X, Y>> pairs = new ArrayList<>();
+    Iterator<X> iter1 = arr1.iterator();
+    Iterator<Y> iter2 = arr2.iterator();
+
+    while (iter1.hasNext() && iter2.hasNext()) {
+      pairs.add(new Pair<>(iter1.next(), iter2.next()));
+    }
+
+    return pairs.iterator();
+  }
+}
+
+// utils class
+class IteratorUtils {
+
+}
+
+// examples class
+class ExamplesPuzzle {
+
+}

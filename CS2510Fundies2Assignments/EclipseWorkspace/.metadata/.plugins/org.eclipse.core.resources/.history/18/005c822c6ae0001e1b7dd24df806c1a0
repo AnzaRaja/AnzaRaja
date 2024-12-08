@@ -1,0 +1,99 @@
+import tester.Tester;
+
+// Represents a bank account
+abstract class Account {
+
+  int accountNum; // Must be unique
+  int balance; // Must remain above zero (others Accts have more restrictions)
+  String name; // Name on the account
+
+  Account(int accountNum, int balance, String name) {
+    this.accountNum = accountNum;
+    this.balance = balance;
+    this.name = name;
+  }
+}
+
+//Represents a Bank with list of accounts
+class Bank {
+
+  String name;
+  ILoAccount accounts;
+
+  Bank(String name) {
+    this.name = name;
+
+    // Each bank starts with no accounts
+    this.accounts = new MtLoAccount();
+  }
+
+}
+
+//Represents a checking account
+class Checking extends Account {
+
+  int minimum; // The minimum account balance allowed
+
+  Checking(int accountNum, int balance, String name, int minimum) {
+    super(accountNum, balance, name);
+    this.minimum = minimum;
+  }
+}
+
+//Represents a credit line account
+class Credit extends Account {
+
+  int creditLine; // Maximum amount accessible
+  double interest; // The interest rate charged
+
+  Credit(int accountNum, int balance, String name, int creditLine, double interest) {
+    super(accountNum, balance, name);
+    this.creditLine = creditLine;
+    this.interest = interest;
+  }
+}
+
+//Represents a List of Accounts
+interface ILoAccount {
+
+}
+
+//Represents a non-empty List of Accounts...
+class ConsLoAccount implements ILoAccount {
+
+  Account first;
+  ILoAccount rest;
+
+  ConsLoAccount(Account first, ILoAccount rest) {
+    this.first = first;
+    this.rest = rest;
+  }
+}
+
+//Bank Account Examples and Tests
+class Examples {
+  Account check1;
+  Account savings1;
+
+  Examples() {
+    reset();
+  }
+
+// Initializes accounts to use for testing with effects.
+// We place inside reset() so we can "reuse" the accounts
+  void reset() {
+
+    // Initialize the account examples
+    check1 = new Checking(1, 100, "First Checking Account", 20);
+    savings1 = new Savings(4, 200, "First Savings Account", 2.5);
+  }
+
+// Tests the exceptions we expect to be thrown when
+//   performing an "illegal" action.
+  void testExceptions(Tester t) {
+    reset();
+    t.checkException("Test for invalid Checking withdraw",
+        new RuntimeException("1000 is not available"), this.check1, "withdraw", 1000);
+  }
+
+}

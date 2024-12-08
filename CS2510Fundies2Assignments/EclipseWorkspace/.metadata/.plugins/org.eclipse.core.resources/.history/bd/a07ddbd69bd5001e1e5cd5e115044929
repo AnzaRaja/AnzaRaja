@@ -1,0 +1,93 @@
+//import tester.Tester;
+import java.util.function.BiFunction;
+import java.util.function.Function;
+
+// to represent an arithmetic expression
+
+
+
+interface IArith{
+  
+  <R> R accept(IArithVisitor<R> visitor);  
+  
+
+}
+
+class Const implements IArith {
+  double num;
+  
+  Const(double num) {
+    this.num = num;
+  }
+
+  
+  public <R> R accept(IArithVisitor<R> visitor) {
+    return visitor.visitConst(this);
+  }
+
+}
+
+class UnaryFormula implements IArith {
+  Function<Double, Double> func;
+  String name;
+  IArith child;
+  
+  UnaryFormula(Function<Double, Double> func, String name, IArith child) {
+    this.func = func;
+    this.name = name;
+    this.child = child;
+  }
+
+  public <R> R accept(IArithVisitor<R> visitor) {
+    return visitor.visitUnaryFormula(this);
+  }
+}
+
+class BinaryFormula implements IArith {
+  BiFunction<Double, Double, Double> func;
+  String name;
+  IArith left;
+  IArith right;
+  
+  BinaryFormula(BiFunction<Double, Double, Double> func, String name, IArith left, IArith right) {
+    this.func = func;
+    this.name = name;
+    this.left = left;
+    this.right = right;
+  }
+
+  public <R> R accept(IArithVisitor<R> visitor) {
+    return visitor.visitBinaryFormula(this);
+  }
+}
+
+// visits an IArith and evaluates the tree to a Double answer
+class EvalVisitor<R> implements IArithVisitor<R> {
+
+  
+  public R apply(IArith t) {
+    return t.accept(this);
+  }
+
+  
+  public R visitConst(Const c) {
+    return c.accept(this);
+  }
+
+  public R visitUnaryFormula(UnaryFormula s) {
+    return s.accept(this);
+  }
+
+  public R visitBinaryFormula(BinaryFormula r) {
+    return r.accept(this);
+  } 
+}
+
+//representing a visitor that visits an IArith and produces a result of type R
+interface IArithVisitor<R> extends Function<IArith, R> {
+  R visitConst(Const c);
+  R visitUnaryFormula(UnaryFormula s);
+  R visitBinaryFormula(BinaryFormula r);
+}
+
+

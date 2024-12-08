@@ -1,0 +1,296 @@
+import java.util.ArrayList;
+import java.util.Arrays;
+
+import tester.*;
+import javalib.impworld.*;
+import java.awt.Color;
+import javalib.worldimages.*;
+
+// to represent the LightEmAll class
+class LightEmAll extends World {
+
+  // a list of columns of GamePieces,
+  // i.e., represents the board in column-major order
+  ArrayList<ArrayList<GamePiece>> board;
+
+  // a list of all nodes
+  ArrayList<GamePiece> nodes;
+
+  // a list of edges of the minimum spanning tree
+  ArrayList<Edge> mst;
+
+  // the width and height of the board
+  int width;
+  int height;
+
+  // the current location of the power station,
+  // as well as its effective radius
+  int powerRow;
+  int powerCol;
+  int radius;
+
+  LightEmAll(int width, int height, ArrayList<ArrayList<GamePiece>> board) {
+    this.width = width;
+    this.height = height;
+    this.board = board;
+  }
+
+  // draws the board
+  public WorldScene makeScene() {
+    WorldScene scene = new WorldScene(this.width, this.height);
+    for (int r = 0; r < board.size(); r++) {
+      for (int c = 0; c < board.get(0).size(); c++) {
+        scene.placeImageXY(board.get(r).get(c).drawGamePiece(), (r * 60) + 30, (c * 60) + 30);
+      }
+    }
+    return scene;
+  }
+}
+
+// to represent an edge
+class Edge {
+  GamePiece fromNode;
+  GamePiece toNode;
+  int weight;
+
+  Edge(GamePiece fromNode, GamePiece toNode, int weight) {
+    this.fromNode = fromNode;
+    this.toNode = toNode;
+    this.weight = weight;
+  }
+}
+
+// to represent a GamePiece
+class GamePiece {
+  // in logical coordinates, with the origin
+  // at the top-left corner of the screen
+  int row;
+  int col;
+  // whether this GamePiece is connected to the
+  // adjacent left, right, top, or bottom pieces
+  boolean left;
+  boolean right;
+  boolean top;
+  boolean bottom;
+  // whether the power station is on this piece
+  boolean powerStation;
+  boolean powered;
+
+  GamePiece(int row, int col, boolean left, boolean right, boolean top, boolean bottom,
+      boolean powerStation, boolean powered) {
+    this.row = row;
+    this.col = col;
+    this.left = left;
+    this.right = right;
+    this.top = top;
+    this.bottom = bottom;
+    this.powerStation = powerStation;
+    this.powered = powered;
+  }
+
+  // draws an individual GamePiece
+  public WorldImage drawGamePiece() {
+    // Tile with a bottom wire unpowered *
+    WorldImage bot = new OverlayImage(new RectangleImage(60, 60, "outline", Color.black),
+        new OverlayOffsetImage(new RectangleImage(6, 30, "solid", Color.lightGray), 0, -15,
+            new RectangleImage(60, 60, "solid", Color.darkGray)));
+
+    // Tile with a bottom wire powered *
+    WorldImage botPow = new OverlayImage(new RectangleImage(60, 60, "outline", Color.black),
+        new OverlayOffsetImage(new RectangleImage(6, 30, "solid", Color.yellow), 0, -15,
+            new RectangleImage(60, 60, "solid", Color.gray)));
+
+    // Tile with a top wire unpowered *
+    WorldImage top = new OverlayImage(new RectangleImage(60, 60, "outline", Color.black),
+        new OverlayOffsetImage(new RectangleImage(6, 30, "solid", Color.lightGray), 0, 15,
+            new RectangleImage(60, 60, "solid", Color.pink)));
+
+    // Tile with a top wire powered *
+    WorldImage topPow = new OverlayImage(new RectangleImage(60, 60, "outline", Color.black),
+        new OverlayOffsetImage(new RectangleImage(6, 30, "solid", Color.yellow), 0, 15,
+            new RectangleImage(60, 60, "solid", Color.darkGray)));
+
+    // Tile with a top and bottom wire unpowered *
+    WorldImage topBot = new OverlayImage(new RectangleImage(60, 60, "outline", Color.black),
+        new OverlayImage(new RectangleImage(6, 60, "solid", Color.lightGray),
+            new RectangleImage(60, 60, "solid", Color.gray)));
+
+    // Tile with a top and bottom wire powered *
+    WorldImage topBotPow = new OverlayImage(new RectangleImage(60, 60, "outline", Color.black),
+        new OverlayImage(new RectangleImage(6, 60, "solid", Color.yellow),
+            new RectangleImage(60, 60, "solid", Color.gray)));
+
+    // Tile with a top, bottom and right wire unpowered *
+    WorldImage topBotRight = new OverlayOffsetImage(new RectangleImage(30, 6, "solid", Color.lightGray), -15, 0,
+        new OverlayImage(new RectangleImage(60, 60, "outline", Color.black),
+        new OverlayImage(new RectangleImage(6, 60, "solid", Color.lightGray),
+            new RectangleImage(60, 60, "solid", Color.gray))));
+
+    // Tile with a top, bottom and right wire powered
+    WorldImage topBotRightPow = new OverlayOffsetImage(new RectangleImage(30, 6, "solid", Color.yellow), -15, 0,
+        new OverlayImage(new RectangleImage(60, 60, "outline", Color.black),
+        new OverlayImage(new RectangleImage(6, 60, "solid", Color.yellow),
+            new RectangleImage(60, 60, "solid", Color.gray))));
+
+    // Tile with a top, bottom and left wire unpowered
+    WorldImage topBotLeft = new OverlayOffsetImage(
+        new OverlayImage(new RectangleImage(30, 30, "solid", Color.black),
+            new RectangleImage(6, 30, "solid", Color.lightGray)),
+        -7.5, 0, new RectangleImage(15, 6, "solid", Color.lightGray));
+
+    // Tile with a top, bottom and left wire powered
+    WorldImage topBotLeftPow = new OverlayOffsetImage(
+        new OverlayImage(new RectangleImage(30, 30, "solid", Color.black),
+            new RectangleImage(6, 30, "solid", Color.yellow)),
+        -7.5, 0, new RectangleImage(15, 6, "solid", Color.yellow));
+
+    // Tile with a top, bottom, left and right wire unpowered
+    WorldImage topBotLeftRight = new OverlayImage(
+        new OverlayImage(new RectangleImage(30, 30, "solid", Color.black),
+            new RectangleImage(6, 30, "solid", Color.lightGray)),
+        new RectangleImage(30, 6, "solid", Color.lightGray));
+
+    // Tile with a top, bottom, left and right wire powered
+    WorldImage topBotLeftRightPow = new OverlayImage(
+        new OverlayImage(new RectangleImage(30, 30, "solid", Color.black),
+            new RectangleImage(6, 30, "solid", Color.yellow)),
+        new RectangleImage(30, 6, "solid", Color.yellow));
+
+    // Tile with a top, bottom, left and right wire and a power station unpowered
+    WorldImage tblrPowerStation = new OverlayImage(new StarImage(15, OutlineMode.SOLID, Color.CYAN),
+        new OverlayImage(
+            new OverlayImage(new RectangleImage(30, 30, "solid", Color.black),
+                new RectangleImage(6, 30, "solid", Color.lightGray)),
+            new RectangleImage(30, 6, "solid", Color.lightGray)));
+
+    // Tile with a top, bottom, left and right wire and a power station powered
+    WorldImage tblrPowerStationPow = new OverlayImage(
+        new StarImage(15, OutlineMode.SOLID, Color.CYAN),
+        new OverlayImage(
+            new OverlayImage(new RectangleImage(30, 30, "solid", Color.black),
+                new RectangleImage(6, 30, "solid", Color.yellow)),
+            new RectangleImage(30, 6, "solid", Color.yellow)));
+
+    // top unpowered
+    if (this.top && !this.bottom && !this.left && !this.right && !this.powered
+        && !this.powerStation) {
+      return top;
+    }
+    else if (this.top && !this.bottom && !this.left && !this.right && this.powered
+        && !this.powerStation) {
+      return topPow;
+    }
+    // bottom unpowered
+    else if (this.bottom && !this.top && !this.left && !this.right && !this.powered
+        && !this.powerStation) {
+      return bot;
+    }
+    else if (this.bottom && !this.top && !this.left && !this.right && this.powered
+        && !this.powerStation) {
+      return botPow;
+    }
+    // tb unpowered
+    else if (this.bottom && this.top && !this.left && !this.right && !this.powered
+        && !this.powerStation) {
+      return topBot;
+    }
+    else if (this.bottom && this.top && !this.left && !this.right && this.powered
+        && !this.powerStation) {
+      return topBotPow;
+    }
+    // tbr unpowered and not powerstation
+    else if (this.bottom && this.top && this.right && !this.left && !this.powered
+        && !this.powerStation) {
+      return topBotRight;
+    }
+    // tbr powered and not powerstation
+    else if (this.bottom && this.top && this.right && !this.left && this.powered
+        && !this.powerStation) {
+      return topBotRightPow;
+    }
+    // tbl unpowered and not powerstation
+    else if (this.bottom && this.top && this.left && !this.right && !this.powered
+        && !this.powerStation) {
+      return topBotLeft;
+    }
+    // tbl powered and not powerstation
+    else if (this.bottom && this.top && this.left && !this.right && this.powered
+        && !this.powerStation) {
+      return topBotLeftPow;
+    }
+    // tblr unpowered not powered and not powerstation
+    else if (this.bottom && this.top && this.left && this.right && !this.powered
+        && !this.powerStation) {
+      return topBotLeftRight;
+    }
+    // tblr powered and not powerstation
+    else if (this.bottom && this.top && this.left && this.right && this.powered
+        && !this.powerStation) {
+      return topBotLeftRightPow;
+
+    } // tblr unpowered with powerstation
+    else if (this.bottom && this.top && this.left && this.right && !this.powered
+        && this.powerStation) {
+      return tblrPowerStation;
+    }
+    // tblr powered and powerstation
+    else
+      return tblrPowerStationPow;
+  }
+}
+
+//all examples and tests for LightEmALl
+class ExamplesLightEmAll {
+
+  ArrayList<GamePiece> row1bot = new ArrayList<>(
+      Arrays.asList(new GamePiece(0, 0, false, false, false, true, false, false),
+          new GamePiece(0, 0, false, false, false, true, false, false),
+          new GamePiece(0, 0, false, false, false, true, false, false),
+          new GamePiece(0, 0, false, false, false, true, false, false),
+          new GamePiece(0, 0, false, false, false, true, false, false),
+          new GamePiece(0, 0, false, false, false, true, false, false),
+          new GamePiece(0, 0, false, false, false, true, false, false),
+          new GamePiece(0, 0, false, false, false, true, false, false)));
+
+  ArrayList<GamePiece> row2topbot = new ArrayList<>(
+      Arrays.asList(new GamePiece(0, 0, false, false, true, true, false, false),
+          new GamePiece(0, 0, false, false, true, true, false, false),
+          new GamePiece(0, 0, false, false, true, true, false, false),
+          new GamePiece(0, 0, false, false, true, true, false, false),
+          new GamePiece(0, 0, false, false, true, true, false, false),
+          new GamePiece(0, 0, false, false, true, true, false, false),
+          new GamePiece(0, 0, false, false, true, true, false, false),
+          new GamePiece(0, 0, false, false, true, true, false, false)));
+
+  ArrayList<GamePiece> row3top = new ArrayList<>(
+      Arrays.asList(new GamePiece(0, 0, false, false, true, false, false, false),
+          new GamePiece(0, 0, false, false, true, false, false, false),
+          new GamePiece(0, 0, false, false, true, false, false, false),
+          new GamePiece(0, 0, false, false, true, false, false, false),
+          new GamePiece(0, 0, false, false, true, false, false, false),
+          new GamePiece(0, 0, false, false, true, false, false, false),
+          new GamePiece(0, 0, false, false, true, false, false, false),
+          new GamePiece(0, 0, false, false, true, false, false, false)));
+
+  ArrayList<GamePiece> row4tblr = new ArrayList<>(
+      Arrays.asList(new GamePiece(0, 0, false, true, true, true, false, false),
+          new GamePiece(0, 0, true, true, true, true, false, false),
+          new GamePiece(0, 0, true, true, true, true, false, false),
+          new GamePiece(0, 0, true, true, true, true, false, false),
+          new GamePiece(0, 0, true, true, true, true, true, false),
+          new GamePiece(0, 0, true, true, true, true, false, false),
+          new GamePiece(0, 0, true, true, true, true, false, false),
+          new GamePiece(0, 0, true, false, true, true, false, false)));
+
+  ArrayList<ArrayList<GamePiece>> board1 = new ArrayList<ArrayList<GamePiece>>(
+      Arrays.asList(this.row1bot, this.row2topbot, this.row2topbot, this.row2topbot, this.row4tblr,
+          this.row2topbot, this.row2topbot, this.row2topbot, this.row3top));
+
+//displays the worldScene
+  void testBigBang(Tester t) {
+    LightEmAll world = new LightEmAll(40 * 9, 40 * 8, this.board1);
+    int worldWidth = 950;
+    int worldHeight = 550;
+    world.bigBang(worldWidth, worldHeight);
+  }
+}

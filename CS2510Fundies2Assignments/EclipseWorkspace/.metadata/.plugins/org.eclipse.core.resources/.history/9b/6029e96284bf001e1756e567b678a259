@@ -1,0 +1,48 @@
+// import Tester.tester
+
+//to represent a book
+interface ILoBook {
+
+}
+
+//to represent a regular book
+class Book extends ALoBook {
+  String author;
+
+  Book(String title, String author, int dayTaken) {
+    super(title, dayTaken);
+    this.author = author;
+  }
+}
+
+//to represent a reference book
+class RefBook extends ALoBook {
+  
+  RefBook(String title, int dayTaken) {
+    super(title, dayTaken);
+  }
+}
+
+//to represent an audio book
+class AudioBook implements ILoBook {
+  String title;
+  String author;
+  int dayTaken;
+
+  AudioBook(String title, String author, int dayTaken) {
+    this.title = title;
+    this.author = author;
+    this.dayTaken = dayTaken;
+  }
+}
+
+//to represent book
+abstract class ALoBook implements ILoBook {
+  String title;
+  int dayTaken;
+  
+  ALoBook(String title, int dayTaken) {
+    this.title = title;
+    this.dayTaken = dayTaken;
+  }
+}

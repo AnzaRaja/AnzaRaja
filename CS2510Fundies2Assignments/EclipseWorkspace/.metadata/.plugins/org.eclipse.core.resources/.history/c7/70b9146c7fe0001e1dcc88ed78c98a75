@@ -1,0 +1,76 @@
+import tester.*;
+
+// Bank Account Examples and Tests
+class ExamplesBank {
+  Account check1;
+  Account check2;
+  Account check3;
+  Account savings1;
+  Account savings2;
+  Account savings3;
+  Account credit1;
+  Account credit2;
+  Account credit3;
+
+  ExamplesBank() {
+    reset();
+  }
+
+  // Initializes accounts to use for testing with effects.
+  // We place inside reset() so we can "reuse" the accounts
+  void reset() {
+
+    // Initialize the account examples
+    check1 = new Checking(1, 100, "First Checking Account", 20);
+    check2 = new Checking(1234, 400, "David", 30);
+    check3 = new Checking(5678, 130, "Lara", 15);
+
+    savings1 = new Savings(4, 200, "First Savings Account", 2.5);
+    savings2 = new Savings(9101, 300, "Dan", 2.5);
+    savings3 = new Savings(1121, 310, "Finn", 2.5);
+
+    credit1 = new Credit(3141, 200, "Becky", 200, 2.5);
+    credit2 = new Credit(5161, 320, "Ella", 150, 2.5);
+    credit3 = new Credit(7189, 100, "Josh", 250, 2.5);
+  }
+
+  // Tests the exceptions we expect to be thrown when
+  // performing an "illegal" action.
+  void testExceptions(Tester t) {
+    reset();
+    t.checkException("Test for invalid Checking withdraw",
+        new RuntimeException("1000 is not available in checkings balance"), this.check1, "withdraw", 1000);
+    t.checkException("Test for invalid Checking withdraw",
+        new RuntimeException("530 is not available in checkings balance"), this.check2, "withdraw", 530);
+    t.checkException("Test for invalid Savings withdraw",
+        new RuntimeException("201 is not available in savings balance"), this.savings1, "withdraw", 201);
+  } 
+
+ /* void testExceptions(Tester t) {
+    reset();
+    t.checkException(
+        new IllegalArgumentException("Withdraw amount exceeds current savings balance"), "checking",
+        "withdraw", 1000);
+  }*/
+
+  // tests the withdraw method
+  boolean testWithdraw(Tester t) {
+    return t.checkExpect(this.check1.withdraw(10), 90)
+        && t.checkExpect(this.check2.withdraw(150), 250)
+        && t.checkExpect(this.savings1.withdraw(180), 20)
+        && t.checkExpect(this.savings2.withdraw(0), 300)
+        && t.checkExpect(this.credit1.withdraw(150), 350)
+        && t.checkExpect(this.credit2.withdraw(12), 332);
+  }
+
+  // tests the deposit method
+  boolean testDeposit(Tester t) {
+    return t.checkExpect(this.check1.deposit(10), 110)
+        && t.checkExpect(this.check2.deposit(150), 550)
+        && t.checkExpect(this.savings1.deposit(180), 380)
+        && t.checkExpect(this.savings2.deposit(0), 300)
+        && t.checkExpect(this.credit1.deposit(150), 50)
+        && t.checkExpect(this.credit2.deposit(12), 308);
+  }
+
+}

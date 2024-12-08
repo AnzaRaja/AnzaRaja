@@ -1,0 +1,196 @@
+import tester.Tester;
+
+// Represents a bank account
+abstract class Account {
+
+  int accountNum; // Must be unique
+  int balance; // Must remain above zero (others Accts have more restrictions)
+  String name; // Name on the account
+
+  Account(int accountNum, int balance, String name) {
+    this.accountNum = accountNum;
+    this.balance = balance;
+    this.name = name;
+  }
+
+  // EFFECT: Withdraw the given amount
+  // Return the new balance
+  abstract int withdraw(int amount);
+
+  // EFFECT: Deposit the given funds into this account
+  // Return the new balance
+  abstract int deposit(int funds);
+}
+
+//Represents a Bank with list of accounts
+class Bank {
+
+  String name;
+  ILoAccount accounts;
+
+  Bank(String name) {
+    this.name = name;
+
+    // Each bank starts with no accounts
+    this.accounts = new MtLoAccount();
+  }
+}
+
+//Represents a checking account
+class Checking extends Account {
+
+  int minimum; // The minimum account balance allowed
+
+  Checking(int accountNum, int balance, String name, int minimum) {
+    super(accountNum, balance, name);
+    this.minimum = minimum;
+  }
+
+  // EFFECT: Withdraw the given amount
+  // Return the new balance where the minimum amount cannot be exceeded
+  public int withdraw(int amount) {
+    if (this.balance - amount >= this.minimum) {
+      return this.balance - amount;
+    }
+    else {
+      throw new IllegalArgumentException("Withdraw amount exceeds minimum checking balance");
+    }
+  }
+
+  // EFFECT: Deposit the given funds into this account
+  // Return the new balance
+  public int deposit(int funds) {
+    return this.balance + funds;
+  }
+}
+
+//Represents a credit line account
+class Credit extends Account {
+
+  int creditLine; // Maximum amount accessible
+  double interest; // The interest rate charged
+
+  Credit(int accountNum, int balance, String name, int creditLine, double interest) {
+    super(accountNum, balance, name);
+    this.creditLine = creditLine;
+    this.interest = interest;
+  }
+
+  // EFFECT: Withdraw the given amount
+  // Return the new balance where the minimum amount cannot be exceeded
+  public int withdraw(int amount) {
+    if (this.creditLine >= amount) {
+      return this.balance + amount;
+    }
+    else {
+      throw new IllegalArgumentException("Withdraw amount exceeds max creditLine accessibility");
+    }
+  }
+
+  // EFFECT: Deposit the given funds into this account
+  // Return the new balance
+  public int deposit(int funds) {
+    if (this.balance - funds >= 0) {
+      return this.balance - funds;
+    }
+    else {
+      return 0;
+    }
+  }
+}
+
+//Represents a savings account
+class Savings extends Account {
+
+  double interest; // The interest rate
+
+  Savings(int accountNum, int balance, String name, double interest) {
+    super(accountNum, balance, name);
+    this.interest = interest;
+  }
+
+  // EFFECT: Withdraw the given amount
+  // Return the new balance where the minimum amount cannot be exceeded
+  public int withdraw(int amount) {
+    if (this.balance - amount >= 0) {
+      return this.balance - amount;
+    }
+    else {
+      throw new IllegalArgumentException("Withdraw amount exceeds current savings balance");
+    }
+  }
+
+  // EFFECT: Deposit the given funds into this account
+  // Return the new balance
+  public int deposit(int funds) {
+    return this.balance + funds;
+  }
+}
+
+//Represents a List of Accounts
+interface ILoAccount {
+
+}
+
+//Represents the empty List of Accounts
+class MtLoAccount implements ILoAccount {
+
+  MtLoAccount() {
+  }
+}
+
+//Represents a non-empty List of Accounts...
+class ConsLoAccount implements ILoAccount {
+
+  Account first;
+  ILoAccount rest;
+
+  ConsLoAccount(Account first, ILoAccount rest) {
+    this.first = first;
+    this.rest = rest;
+  }
+}
+
+//Bank Account Examples and Tests
+class Examples {
+  Account check1;
+  Account check2;
+  Account check3;
+  Account savings1;
+  Account savings2;
+  Account savings3;
+  Account credit1;
+  Account credit2;
+  Account credit3;
+
+  Examples() {
+    reset();
+  }
+
+// Initializes accounts to use for testing with effects.
+// We place inside reset() so we can "reuse" the accounts
+  void reset() {
+
+    // Initialize the account examples
+    check1 = new Checking(1, 100, "First Checking Account", 20);
+    check2 = new Checking(1234, 400, "David", 30);
+    check3 = new Checking(5678, 130, "Lara", 15);
+
+    savings1 = new Savings(4, 200, "First Savings Account", 2.5);
+    savings2 = new Savings(9101, 300, "Dan", 2.5);
+    savings3 = new Savings(1121, 310, "Finn", 2.5);
+
+    credit1 = new Credit(3141, 200, "Becky", 200, 2.5);
+    credit2 = new Credit(5161, 320, "Ella", 150, 2.5);
+    credit3 = new Credit(7189, 100, "Josh", 250, 2.5);
+  }
+
+// Tests the exceptions we expect to be thrown when
+//   performing an "illegal" action.
+  void testExceptions(Tester t) {
+    reset();
+    t.checkException("Test for invalid Checking withdraw",
+        new RuntimeException("1000 is not available"), this.check1, "withdraw", 1000);
+  }
+
+}

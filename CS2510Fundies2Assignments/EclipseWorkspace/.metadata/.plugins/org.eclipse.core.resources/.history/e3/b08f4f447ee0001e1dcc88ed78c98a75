@@ -1,0 +1,35 @@
+
+// Represents a credit line account
+class Credit extends Account {
+
+  int creditLine; // Maximum amount accessible
+  double interest; // The interest rate charged
+
+  Credit(int accountNum, int balance, String name, int creditLine, double interest) {
+    super(accountNum, balance, name);
+    this.creditLine = creditLine;
+    this.interest = interest;
+  }
+
+  //EFFECT: Withdraw the given amount
+  // Return the new balance where the minimum amount cannot be exceeded
+  public int withdraw(int amount) {
+    if (this.creditLine >= amount) {
+      return this.balance + amount;
+    }
+    else {
+      throw new IllegalArgumentException("Withdraw amount exceeds max creditLine accessibility");
+    }
+  }
+
+  // EFFECT: Deposit the given funds into this account
+  // Return the new balance
+  public int deposit(int funds) {
+    if (this.balance - funds >= 0) {
+      return this.balance - funds;
+    }
+    else {
+      return 0;
+    }
+  }
+}

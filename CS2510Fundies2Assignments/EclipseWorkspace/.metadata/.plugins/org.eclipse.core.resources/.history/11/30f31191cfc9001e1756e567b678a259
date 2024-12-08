@@ -1,0 +1,86 @@
+import tester.*;
+import java.util.Random;
+import javalib.worldimages.*;
+import javalib.funworld.*;
+import java.awt.Color;
+
+class ZTypeWorld extends World {
+
+  ILoWord ILoWord;
+  
+  ZTypeWorld(ILoWord ILoWord) {
+    this.ILoWord = ILoWord;
+  }
+  
+//draws the words onto the background
+  public WorldScene makeScene() {
+    return this.ILoWord.draw(new WorldScene(600, 400));
+  }
+}
+
+interface ILoWord {
+
+}
+
+//represents an empty list of words
+class MtLoWord implements ILoWord {
+
+  /*- TEMPLATE
+  FIELDS:
+  
+  METHODS
+ ... ...
+  METHODS for fields
+  */
+}
+
+class ConsLoWord implements ILoWord {
+  IWord first;
+  ILoWord rest;
+
+  ConsLoWord(IWord first, ILoWord rest) {
+    this.first = first;
+    this.rest = rest;
+  }
+}
+
+//represents a word in the ZType game
+interface IWord {
+
+}
+
+//represents an active word in the ZType game
+class ActiveWord implements IWord {
+  String word;
+  int x;
+  int y;
+
+  ActiveWord(String word, int x, int y) {
+    this.word = word;
+    this.x = x;
+    this.y = y;
+  }
+  
+//draw this word as Image
+  WorldImage draw() {
+    return (new TextImage(this.word, 24, FontStyle.BOLD, Color.GREEN));
+  
+  
+}
+
+//represents an inactive word in the ZType game
+class InactiveWord implements IWord {
+  String word;
+  int x;
+  int y;
+
+  InactiveWord(String word, int x, int y) {
+    this.word = word;
+    this.x = x;
+    this.y = y;
+  }
+  
+//draw this word as Image
+  WorldImage draw() {
+    return (new TextImage(this.word, 24, FontStyle.BOLD, Color.RED));
+}

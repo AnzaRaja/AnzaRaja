@@ -1,0 +1,211 @@
+import tester.*;
+import java.util.Random;
+import javalib.worldimages.*;
+import javalib.funworld.*;
+import java.awt.Color;
+
+class ZTypeWorld extends World {
+
+  ILoWord ILoWord;
+
+  ZTypeWorld(ILoWord ILoWord) {
+    this.ILoWord = ILoWord;
+  }
+
+//draws the words onto the background
+  public WorldScene makeScene() {
+    return this.ILoWord.draw(new WorldScene(600, 400));
+  }
+}
+
+interface ILoWord {
+
+}
+
+//represents an empty list of words
+class MtLoWord implements ILoWord {
+
+  /*- TEMPLATE
+  FIELDS:
+  
+  METHODS
+  ... ...
+  METHODS for fields
+  */
+}
+
+class ConsLoWord implements ILoWord {
+  IWord first;
+  ILoWord rest;
+
+  ConsLoWord(IWord first, ILoWord rest) {
+    this.first = first;
+    this.rest = rest;
+  }
+
+  /*- TEMPLATE
+  FIELDS:
+  ... this.first ...                   -- IWord
+  ... this.rest ...                    -- ILoWord
+  
+  METHODS
+  ...  ...                                --
+  ...  ...                            -- 
+  
+  METHODS for fields:
+  ...  ...                           -- 
+  ...  ...                      -- 
+  */
+}
+
+//represents a word in the ZType game
+interface IWord {
+
+}
+
+//represents an active word in the ZType game
+class ActiveWord implements IWord {
+  String word;
+  int x;
+  int y;
+
+  ActiveWord(String word, int x, int y) {
+    this.word = word;
+    this.x = x;
+    this.y = y;
+  }
+
+  /*- TEMPLATE
+  FIELDS:
+  ... this.word ...                 -- String
+  ... this.x ...                    -- int
+  ... this.y ...                    -- int
+  
+  METHODS
+  
+  METHODS for fields:
+  
+  */
+
+//draw this word as Image
+  WorldImage draw() {
+    return (new TextImage(this.word, 24, FontStyle.BOLD, Color.GREEN));
+
+  }
+}
+
+//represents an inactive word in the ZType game
+class InactiveWord implements IWord {
+  String word;
+  int x;
+  int y;
+
+  InactiveWord(String word, int x, int y) {
+    this.word = word;
+    this.x = x;
+    this.y = y;
+  }
+
+  /*- TEMPLATE
+  FIELDS:
+  ... this.word ...                 -- String
+  ... this.x ...                    -- int
+  ... this.y ...                    -- int
+  
+  METHODS
+  
+  METHODS for fields:
+  
+  */
+
+//draw this word as Image
+  WorldImage draw() {
+    return (new TextImage(this.word, 24, FontStyle.BOLD, Color.RED));
+  }
+}
+
+//all examples and tests for ILoWord
+class ExamplesWordLists {
+  ExamplesWordLists() {
+
+  }
+
+// IWords
+  IWord butterfly = new ActiveWord("butterfly", 70, 100);
+  IWord ant = new InactiveWord("ant", 60, 30);
+  IWord bee = new ActiveWord("bee", 450, 450);
+  IWord ladybug = new ActiveWord("ladybug", 100, 300);
+  IWord beetle = new InactiveWord("beetle", 14, 29);
+
+  IWord cake = new ActiveWord("cake", 1, 1);
+  IWord yoghurt = new ActiveWord("yoghurt", 1, 1);
+  IWord pudding = new InactiveWord("pudding", 1, 1);
+  IWord pie = new ActiveWord("pie", 1, 1);
+
+  IWord rhino = new ActiveWord("rhino", 1, 1);
+  IWord giraffe = new InactiveWord("giraffe", 1, 1);
+  IWord lion = new InactiveWord("lion", 1, 1);
+  IWord zebra = new ActiveWord("zebra", 1, 1);
+  IWord crocodile = new ActiveWord("crocodile", 1, 1);
+  IWord buffalo = new InactiveWord("buffalo", 1, 1);
+
+  IWord red = new InactiveWord("red", 3, 2);
+  IWord orange = new ActiveWord("orange", 6, 10);
+  IWord green = new ActiveWord("green", 1, 1);
+  IWord yellow = new ActiveWord("Yellow", 9, 15);
+  IWord purple = new InactiveWord("Purple", 1, 1);
+
+  IWord sam = new ActiveWord("Sam", 1, 1);
+  IWord kate = new ActiveWord("Kate", 1, 1);
+  IWord alison = new ActiveWord("Alison", 1, 1);
+  IWord jake = new ActiveWord("Jake", 1, 1);
+  IWord izzy = new ActiveWord("Izzy", 1, 1);
+  IWord lara = new InactiveWord("Lara", 1, 1);
+  IWord dan = new ActiveWord("Dan", 1, 1);
+  IWord viki = new InactiveWord("Viki", 1, 1);
+  IWord amy = new InactiveWord("Amy", 1, 1);
+
+  IWord mtStringActive = new ActiveWord("", 30, 50);
+  IWord mtStringInactive = new InactiveWord("", 27, 9);
+
+  ILoWord mtList = new MtLoWord(); // sorted
+
+  ILoWord list1 = new ConsLoWord(this.butterfly, new ConsLoWord(this.ant,
+      new ConsLoWord(this.bee, new ConsLoWord(this.ladybug, this.mtList))));
+
+  ILoWord list2 = new ConsLoWord(this.cake, new ConsLoWord(this.yoghurt,
+      new ConsLoWord(this.pudding, new ConsLoWord(this.pie, this.mtList))));
+
+  ILoWord list3 = new ConsLoWord(this.rhino,
+      new ConsLoWord(this.giraffe, new ConsLoWord(this.lion, new ConsLoWord(zebra,
+          new ConsLoWord(this.crocodile, new ConsLoWord(this.buffalo, this.mtList))))));
+
+  ILoWord list4 = new ConsLoWord(this.red,
+      new ConsLoWord(this.orange, new ConsLoWord(this.yellow, this.mtList)));
+
+  ILoWord list5 = new ConsLoWord(this.yellow,
+      new ConsLoWord(this.purple, new ConsLoWord(this.yellow, this.mtList)));
+
+  ILoWord list6 = new ConsLoWord(this.red,
+      new ConsLoWord(this.yellow, new ConsLoWord(this.purple, this.mtList)));
+
+  ILoWord list7 = new ConsLoWord(this.sam,
+      new ConsLoWord(this.kate, new ConsLoWord(this.alison, this.mtList)));
+
+  ILoWord list8 = new ConsLoWord(this.kate,
+      new ConsLoWord(this.alison,
+          new ConsLoWord(this.jake, new ConsLoWord(this.izzy, new ConsLoWord(this.lara,
+              new ConsLoWord(this.dan, new ConsLoWord(this.viki, this.mtList)))))));
+
+  ILoWord list9 = new ConsLoWord(this.cake,
+      new ConsLoWord(this.pie, new ConsLoWord(this.cake, this.mtList)));
+
+  ILoWord list10 = new ConsLoWord(this.cake, new ConsLoWord(this.pie, new ConsLoWord(this.cake,
+      new ConsLoWord(this.pie, new ConsLoWord(this.pudding, this.mtList)))));
+
+  ILoWord list11 = new ConsLoWord(this.sam, new ConsLoWord(this.kate, new ConsLoWord(this.alison,
+      new ConsLoWord(this.kate, new ConsLoWord(this.sam, new ConsLoWord(this.dan, this.mtList))))));
+
+  ILoWord list12 = new ConsLoWord(this.red, new ConsLoWord(this.yellow,
+      new ConsLoWord(this.purple, new ConsLoWord(this.yellow, new ConsLoWord(red, this.mtList)))));
+}

@@ -1,0 +1,1190 @@
+import java.util.ArrayList;
+import java.util.Arrays;
+
+import tester.*;
+import javalib.impworld.*;
+import java.awt.Color;
+import javalib.worldimages.*;
+
+// to represent the LightEmAll class
+class LightEmAll extends World {
+
+  // a list of columns of GamePieces,
+  // i.e., represents the board in column-major order
+  ArrayList<ArrayList<GamePiece>> board;
+
+  // a list of all nodes
+  ArrayList<GamePiece> nodes;
+
+  // a list of edges of the minimum spanning tree
+  ArrayList<Edge> mst;
+
+  // the width and height of the board
+  int width;
+  int height;
+
+  // the current location of the power station,
+  // as well as its effective radius
+  int powerCol;
+  int powerRow;
+  int radius;
+
+  LightEmAll(int width, int height, ArrayList<ArrayList<GamePiece>> board) {
+    this.width = width;
+    this.height = height;
+    this.board = board;
+    this.powerCol = 4;
+    this.powerRow = 4;
+
+    hasPathBetween(new GamePiece(this.powerRow, this.powerCol, true, true, true, true, true, true));
+  }
+
+  // draws the board
+  public WorldScene makeScene() {
+    WorldScene scene = new WorldScene(this.width, this.height);
+    for (int r = 0; r < board.size(); r++) {
+      for (int c = 0; c < board.get(0).size(); c++) {
+        scene.placeImageXY(board.get(r).get(c).drawGamePiece(), (r * 60) + 30, (c * 60) + 30);
+      }
+    }
+    return scene;
+  }
+
+  /*
+   * // left-mouse-click handling to rotate cells public void onMouseClicked(Posn
+   * pos, String buttonName) { int xposn = Math.floor((pos.x / 60)); int yposn =
+   * Math.floor((pos.y / 60)); GamePiece gamePiece = board.get(xposn).get(yposn);
+   * if (buttonName.equals("LeftButton")) {
+   * 
+   * } }
+   */
+
+  // left-mouse-click handling to rotate cells
+  public void onMouseClicked(Posn pos, String buttonName) {
+
+    GamePiece gamePiece = board.get((int) Math.floor((pos.x) / 60))
+        .get((int) Math.floor((pos.y / 60)));
+
+    if (buttonName.equals("LeftButton")) {
+      gamePiece.rotateGamePiece();
+    }
+  }
+
+  // moves the powerstation using the top, bottom, left, right arrow keys
+  // following the wire
+  public void onKeyEvent(String key) {
+    int oldPowerRow = this.powerCol;
+    int oldPowerCol = this.powerRow;
+    if (key.equals("left") && (this.powerCol > 0)
+        && (this.board.get(powerCol - 1).get(powerRow).right)
+        && (this.board.get(powerCol).get(powerRow).left)) {
+      this.board.get(oldPowerRow).get(oldPowerCol).removePowerStation(); // remove old powerStation
+      this.powerCol = powerCol - 1; // update posn
+      this.board.get(powerCol).get(powerRow).addPowerStation(); // add powerStation to new posn
+    }
+    else if (key.equals("right") && (this.powerCol < (width / 60) - 1)
+        && (this.board.get(powerCol + 1).get(powerRow).left)
+        && (this.board.get(powerCol).get(powerRow).right)) {
+      this.board.get(oldPowerRow).get(oldPowerCol).removePowerStation(); // remove old powerStation
+      this.powerCol = powerCol + 1; // update posn
+      this.board.get(powerCol).get(powerRow).addPowerStation(); // add powerStation to new posn
+    }
+    else if (key.equals("up") && (this.powerRow > 0)
+        && (this.board.get(powerCol).get(powerRow - 1).bottom)
+        && (this.board.get(powerCol).get(powerRow).top)) {
+      this.board.get(oldPowerRow).get(oldPowerCol).removePowerStation(); // remove old powerStation
+      this.powerRow = powerRow - 1; // update posn
+      this.board.get(powerCol).get(powerRow).addPowerStation(); // add powerStation to new posn
+
+    }
+    else if (key.equals("down") && (this.powerRow < (height / 60) - 1)
+        && (this.board.get(powerCol).get(powerRow + 1).top)
+        && (this.board.get(powerCol).get(powerRow).bottom)) {
+      this.board.get(oldPowerRow).get(oldPowerCol).removePowerStation(); // remove old powerStation
+      this.powerRow = powerRow + 1; // update posn
+      this.board.get(powerCol).get(powerRow).addPowerStation(); // add powerStation to new posn
+    }
+    else {
+      return;
+    }
+  }
+
+  // checks which wires are connected to the power source
+  public void hasPathBetween(GamePiece cur) {
+    ArrayList<GamePiece> alreadySeen = new ArrayList<GamePiece>();
+    ArrayList<GamePiece> worklist = new ArrayList<GamePiece>();
+
+    // Initialize the workList with the powerSource
+    worklist.add(cur);
+    // As long as the workList isn't empty...
+    while (!worklist.isEmpty()) {
+      GamePiece next = worklist.remove(0);
+
+      if (alreadySeen.contains(next)) {
+        // do nothing: already seen this one
+      }
+      // if next is connected to current
+      else if (next.isConnected(cur)) {
+        // light it up and add the next's adjacent cells to the workList
+        next.powerUp();
+
+        // Add adjacent cells to the workList
+        if (next.row > 0) {
+          GamePiece topPiece = board.get(next.row - 1).get(next.col);
+          worklist.add(topPiece);
+        }
+        if (next.row < height - 1) {
+          GamePiece bottomPiece = board.get(next.row + 1).get(next.col);
+          worklist.add(bottomPiece);
+        }
+        if (next.col > 0) {
+          GamePiece leftPiece = board.get(next.row).get(next.col - 1);
+          worklist.add(leftPiece);
+        }
+        if (next.col < width - 1) {
+          GamePiece rightPiece = board.get(next.row).get(next.col + 1);
+          worklist.add(rightPiece);
+
+          // add next to alreadySeen, since we're done with it
+          alreadySeen.add(next);
+        }
+      }
+    }
+    System.out.print(worklist.size());
+  }
+}
+
+// to represent an edge
+class Edge {
+  GamePiece fromNode;
+  GamePiece toNode;
+  int weight;
+
+  Edge(GamePiece fromNode, GamePiece toNode, int weight) {
+    this.fromNode = fromNode;
+    this.toNode = toNode;
+    this.weight = weight;
+  }
+}
+
+// to represent a GamePiece
+class GamePiece {
+  // in logical coordinates, with the origin
+  // at the top-left corner of the screen
+  int row;
+  int col;
+  // whether this GamePiece is connected to the
+  // adjacent left, right, top, or bottom pieces
+  boolean left;
+  boolean right;
+  boolean top;
+  boolean bottom;
+  // whether the power station is on this piece
+  boolean powerStation;
+  boolean powered;
+
+  GamePiece(int row, int col, boolean left, boolean right, boolean top, boolean bottom,
+      boolean powerStation, boolean powered) {
+    this.row = row;
+    this.col = col;
+    this.left = left;
+    this.right = right;
+    this.top = top;
+    this.bottom = bottom;
+    this.powerStation = powerStation;
+    this.powered = powered;
+  }
+
+  // is this GamePiece connected to the given GamePiece
+  public boolean isConnected(GamePiece cur) {
+    if (this == cur) {
+      return true;
+    }
+    // Check if the given GamePiece is adjacent to the current GamePiece
+    if (this.row == cur.row && Math.abs(this.col - cur.col) == 1) {
+      // Check if the given GamePiece is on the left or right
+      if ((this.col == cur.col - 1 && this.right && cur.left)
+          || (this.col == cur.col + 1 && this.left && cur.right)) {
+        return true;
+      }
+    }
+    else if (this.col == cur.col && Math.abs(this.row - cur.row) == 1) {
+      // Check if the given GamePiece is on the top or bottom
+      if ((this.row == cur.row - 1 && this.bottom && cur.top)
+          || (this.row == cur.row + 1 && this.top && cur.bottom)) {
+        return true;
+      }
+    }
+    // If not adjacent or there's no connection
+    return false;
+  }
+
+  // removes the power station from a GamePiece
+  public void removePowerStation() {
+    this.powerStation = false;
+  }
+
+  // adds the power station to the GamePiece
+  public void addPowerStation() {
+    this.powerStation = true;
+  }
+
+  // powers up this gamePiece
+  public void powerUp() {
+    this.powered = true;
+  }
+
+  // rotates this GamePiece
+  public void rotateGamePiece() {
+    boolean top = this.top;
+    boolean bottom = this.bottom;
+    boolean left = this.left;
+    boolean right = this.right;
+
+    this.left = top;
+    this.right = bottom;
+    this.bottom = left;
+    this.top = right;
+  }
+  
+//Generate an image of this, the given GamePiece.
+ // - size: the size of the tile, in pixels
+ // - wireWidth: the width of wires, in pixels
+ // - wireColor: the Color to use for rendering wires on this
+ // - hasPowerStation: if true, draws a fancy star on this tile to represent the power station
+ //
+ WorldImage tileImage(int size, int wireWidth, Color wireColor, boolean hasPowerStation) {
+   // Start tile image off as a blue square with a wire-width square in the middle,
+   // to make image "cleaner" (will look strange if tile has no wire, but that can't be)
+   WorldImage image = new OverlayImage(
+       new RectangleImage(wireWidth, wireWidth, OutlineMode.SOLID, wireColor),
+       new RectangleImage(size, size, OutlineMode.SOLID, Color.DARK_GRAY));
+   WorldImage vWire = new RectangleImage(wireWidth, (size + 1) / 2, OutlineMode.SOLID, wireColor);
+   WorldImage hWire = new RectangleImage((size + 1) / 2, wireWidth, OutlineMode.SOLID, wireColor);
+
+   if (this.top) image = new OverlayOffsetAlign(AlignModeX.CENTER, AlignModeY.TOP, vWire, 0, 0, image);
+   if (this.right) image = new OverlayOffsetAlign(AlignModeX.RIGHT, AlignModeY.MIDDLE, hWire, 0, 0, image);
+   if (this.bottom) image = new OverlayOffsetAlign(AlignModeX.CENTER, AlignModeY.BOTTOM, vWire, 0, 0, image);
+   if (this.left) image = new OverlayOffsetAlign(AlignModeX.LEFT, AlignModeY.MIDDLE, hWire, 0, 0, image);
+   if (hasPowerStation) {
+     image = new OverlayImage(
+                 new OverlayImage(
+                     new StarImage(size / 3, 7, OutlineMode.OUTLINE, new Color(255, 128, 0)),
+                     new StarImage(size / 3, 7, OutlineMode.SOLID, new Color(0, 255, 255))),
+                 image);
+   }
+   return image;
+ }
+
+  // draws an individual GamePiece
+  public WorldImage drawGamePiece() {
+    // Tile with a right wire unpowered no PS*
+    WorldImage right = new OverlayImage(new RectangleImage(60, 60, "outline", Color.black),
+        new OverlayOffsetImage(new RectangleImage(30, 6, "solid", Color.lightGray), -15, 0,
+            new RectangleImage(60, 60, "solid", Color.darkGray)));
+
+    // Tile with a right wire powered no PS*
+    WorldImage rightPow = new OverlayImage(new RectangleImage(60, 60, "outline", Color.black),
+        new OverlayOffsetImage(new RectangleImage(30, 6, "solid", Color.yellow), -15, 0,
+            new RectangleImage(60, 60, "solid", Color.darkGray)));
+
+    // Tile with a right wire unpowered with PS*
+    WorldImage rightPS = new OverlayImage(new StarImage(18, OutlineMode.SOLID, Color.CYAN),
+        new OverlayImage(new RectangleImage(60, 60, "outline", Color.black),
+            new OverlayOffsetImage(new RectangleImage(30, 6, "solid", Color.lightGray), -15, 0,
+                new RectangleImage(60, 60, "solid", Color.darkGray))));
+
+    // Tile with a right wire unpowered with PS*
+    WorldImage rightPowPS = new OverlayImage(new StarImage(18, OutlineMode.SOLID, Color.CYAN),
+        new OverlayImage(new RectangleImage(60, 60, "outline", Color.black),
+            new OverlayOffsetImage(new RectangleImage(30, 6, "solid", Color.yellow), -15, 0,
+                new RectangleImage(60, 60, "solid", Color.darkGray))));
+
+    // Tile with a left wire unpowered no PS*
+    WorldImage left = new OverlayImage(new RectangleImage(60, 60, "outline", Color.black),
+        new OverlayOffsetImage(new RectangleImage(30, 6, "solid", Color.lightGray), 15, 0,
+            new RectangleImage(60, 60, "solid", Color.darkGray)));
+
+    // Tile with a left wire powered no PS*
+    WorldImage leftPow = new OverlayImage(new RectangleImage(60, 60, "outline", Color.black),
+        new OverlayOffsetImage(new RectangleImage(30, 6, "solid", Color.yellow), 15, 0,
+            new RectangleImage(60, 60, "solid", Color.darkGray)));
+
+    // Tile with a left wire unpowered with PS*
+    WorldImage leftPS = new OverlayImage(new StarImage(18, OutlineMode.SOLID, Color.CYAN),
+        new OverlayImage(new RectangleImage(60, 60, "outline", Color.black),
+            new OverlayOffsetImage(new RectangleImage(30, 6, "solid", Color.lightGray), 15, 0,
+                new RectangleImage(60, 60, "solid", Color.darkGray))));
+
+    // Tile with a left wire powered with PS*
+    WorldImage leftPowPS = new OverlayImage(new StarImage(18, OutlineMode.SOLID, Color.CYAN),
+        new OverlayImage(new RectangleImage(60, 60, "outline", Color.black),
+            new OverlayOffsetImage(new RectangleImage(30, 6, "solid", Color.yellow), 15, 0,
+                new RectangleImage(60, 60, "solid", Color.darkGray))));
+
+    // Tile with a bottom wire unpowered no PS*
+    WorldImage bot = new OverlayImage(new RectangleImage(60, 60, "outline", Color.black),
+        new OverlayOffsetImage(new RectangleImage(6, 30, "solid", Color.lightGray), 0, -15,
+            new RectangleImage(60, 60, "solid", Color.darkGray)));
+
+    // Tile with a bottom wire unpowered with PS *****
+    WorldImage botPS = new OverlayImage(new StarImage(18, OutlineMode.SOLID, Color.CYAN),
+        new OverlayImage(new RectangleImage(60, 60, "outline", Color.black),
+            new OverlayOffsetImage(new RectangleImage(6, 30, "solid", Color.lightGray), 0, -15,
+                new RectangleImage(60, 60, "solid", Color.darkGray))));
+
+    // Tile with a bottom wire powered no PS*
+    WorldImage botPow = new OverlayImage(new RectangleImage(60, 60, "outline", Color.black),
+        new OverlayOffsetImage(new RectangleImage(6, 30, "solid", Color.yellow), 0, -15,
+            new RectangleImage(60, 60, "solid", Color.darkGray)));
+
+    // Tile with a bottom wire powered with PS *****
+    WorldImage botPowPS = new OverlayImage(new StarImage(18, OutlineMode.SOLID, Color.CYAN),
+        new OverlayImage(new RectangleImage(60, 60, "outline", Color.black),
+            new OverlayOffsetImage(new RectangleImage(6, 30, "solid", Color.yellow), 0, -15,
+                new RectangleImage(60, 60, "solid", Color.darkGray))));
+
+    // Tile with a top wire unpowered no PS*
+    WorldImage top = new OverlayImage(new RectangleImage(60, 60, "outline", Color.black),
+        new OverlayOffsetImage(new RectangleImage(6, 30, "solid", Color.lightGray), 0, 15,
+            new RectangleImage(60, 60, "solid", Color.darkGray)));
+
+    // Tile with a top wire unpowered with PS ****
+    WorldImage topPS = new OverlayImage(new StarImage(18, OutlineMode.SOLID, Color.CYAN),
+        new OverlayImage(new RectangleImage(60, 60, "outline", Color.black),
+            new OverlayOffsetImage(new RectangleImage(6, 30, "solid", Color.lightGray), 0, 15,
+                new RectangleImage(60, 60, "solid", Color.darkGray))));
+
+    // Tile with a top wire powered no PS*
+    WorldImage topPow = new OverlayImage(new RectangleImage(60, 60, "outline", Color.black),
+        new OverlayOffsetImage(new RectangleImage(6, 30, "solid", Color.yellow), 0, 15,
+            new RectangleImage(60, 60, "solid", Color.darkGray)));
+
+    // Tile with a top wire powered with PS ****
+    WorldImage topPowPS = new OverlayImage(new StarImage(18, OutlineMode.SOLID, Color.CYAN),
+        new OverlayImage(new RectangleImage(60, 60, "outline", Color.black),
+            new OverlayOffsetImage(new RectangleImage(6, 30, "solid", Color.yellow), 0, 15,
+                new RectangleImage(60, 60, "solid", Color.darkGray))));
+
+    // Tile with a left and right wire unpowered no PS*
+    WorldImage leftRight = new OverlayImage(new RectangleImage(60, 60, "outline", Color.black),
+        new OverlayImage(new RectangleImage(60, 6, "solid", Color.lightGray),
+            new RectangleImage(60, 60, "solid", Color.darkGray)));
+
+    // Tile with a left and right wire unpowered with PS ****
+    WorldImage leftRightPS = new OverlayImage(new StarImage(18, OutlineMode.SOLID, Color.CYAN),
+        new OverlayImage(new RectangleImage(60, 60, "outline", Color.black),
+            new OverlayImage(new RectangleImage(60, 6, "solid", Color.lightGray),
+                new RectangleImage(60, 60, "solid", Color.darkGray))));
+
+    // Tile with a left and right wire powered no PS*
+    WorldImage leftRightPow = new OverlayImage(new RectangleImage(60, 60, "outline", Color.black),
+        new OverlayImage(new RectangleImage(60, 6, "solid", Color.yellow),
+            new RectangleImage(60, 60, "solid", Color.darkGray)));
+
+    // Tile with a left and right wire powered with PS ****
+    WorldImage leftRightPowPS = new OverlayImage(new StarImage(18, OutlineMode.SOLID, Color.CYAN),
+        new OverlayImage(new RectangleImage(60, 60, "outline", Color.black),
+            new OverlayImage(new RectangleImage(60, 6, "solid", Color.yellow),
+                new RectangleImage(60, 60, "solid", Color.darkGray))));
+
+    // Tile with a top and bottom wire unpowered no PS*
+    WorldImage topBot = new OverlayImage(new RectangleImage(60, 60, "outline", Color.black),
+        new OverlayImage(new RectangleImage(6, 60, "solid", Color.lightGray),
+            new RectangleImage(60, 60, "solid", Color.darkGray)));
+
+    // Tile with a top and bottom wire unpowered with PS ****
+    WorldImage topBotPS = new OverlayImage(new StarImage(18, OutlineMode.SOLID, Color.CYAN),
+        new OverlayImage(new RectangleImage(60, 60, "outline", Color.black),
+            new OverlayImage(new RectangleImage(6, 60, "solid", Color.lightGray),
+                new RectangleImage(60, 60, "solid", Color.darkGray))));
+
+    // Tile with a top and bottom wire powered no PS*
+    WorldImage topBotPow = new OverlayImage(new RectangleImage(60, 60, "outline", Color.black),
+        new OverlayImage(new RectangleImage(6, 60, "solid", Color.yellow),
+            new RectangleImage(60, 60, "solid", Color.darkGray)));
+
+    // Tile with a top and bottom wire powered with PS ****
+    WorldImage topBotPowPS = new OverlayImage(new StarImage(18, OutlineMode.SOLID, Color.CYAN),
+        new OverlayImage(new RectangleImage(60, 60, "outline", Color.black),
+            new OverlayImage(new RectangleImage(6, 60, "solid", Color.yellow),
+                new RectangleImage(60, 60, "solid", Color.darkGray))));
+
+    // Tile with a top, bottom and right wire unpowered no PS*
+    WorldImage topBotRight = new OverlayOffsetImage(
+        new RectangleImage(30, 6, "solid", Color.lightGray), -15, 0,
+        new OverlayImage(new RectangleImage(60, 60, "outline", Color.black),
+            new OverlayImage(new RectangleImage(6, 60, "solid", Color.lightGray),
+                new RectangleImage(60, 60, "solid", Color.darkGray))));
+
+    // Tile with a top, bottom and right wire unpowered with PS ****
+    WorldImage topBotRightPS = new OverlayImage(new StarImage(18, OutlineMode.SOLID, Color.CYAN),
+        new OverlayOffsetImage(new RectangleImage(30, 6, "solid", Color.lightGray), -15, 0,
+            new OverlayImage(new RectangleImage(60, 60, "outline", Color.black),
+                new OverlayImage(new RectangleImage(6, 60, "solid", Color.lightGray),
+                    new RectangleImage(60, 60, "solid", Color.darkGray)))));
+
+    // Tile with a top, bottom and right wire powered no PS*
+    WorldImage topBotRightPow = new OverlayOffsetImage(
+        new RectangleImage(30, 6, "solid", Color.yellow), -15, 0,
+        new OverlayImage(new RectangleImage(60, 60, "outline", Color.black),
+            new OverlayImage(new RectangleImage(6, 60, "solid", Color.yellow),
+                new RectangleImage(60, 60, "solid", Color.darkGray))));
+
+    // Tile with a top, bottom and right wire powered with PS ****
+    WorldImage topBotRightPowPS = new OverlayImage(new StarImage(18, OutlineMode.SOLID, Color.CYAN),
+        new OverlayOffsetImage(new RectangleImage(30, 6, "solid", Color.yellow), -15, 0,
+            new OverlayImage(new RectangleImage(60, 60, "outline", Color.black),
+                new OverlayImage(new RectangleImage(6, 60, "solid", Color.yellow),
+                    new RectangleImage(60, 60, "solid", Color.darkGray)))));
+
+    // Tile with a bot, left and right wire unpowered no PS*
+    WorldImage botLeftRight = new OverlayImage(new RectangleImage(60, 6, "solid", Color.lightGray),
+        new OverlayImage(new RectangleImage(60, 60, "outline", Color.black),
+            new OverlayOffsetImage(new RectangleImage(6, 30, "solid", Color.lightGray), 0, -15,
+                new RectangleImage(60, 60, "solid", Color.darkGray))));
+
+    // Tile with a bot, left and right wire unpowered with PS ****
+    WorldImage botLeftRightPS = new OverlayImage(new StarImage(18, OutlineMode.SOLID, Color.CYAN),
+        new OverlayImage(new RectangleImage(60, 6, "solid", Color.lightGray),
+            new OverlayImage(new RectangleImage(60, 60, "outline", Color.black),
+                new OverlayOffsetImage(new RectangleImage(6, 30, "solid", Color.lightGray), 0, -15,
+                    new RectangleImage(60, 60, "solid", Color.darkGray)))));
+
+    // Tile with a bot, left and right wire powered no PS*
+    WorldImage botLeftRightPow = new OverlayImage(new RectangleImage(60, 6, "solid", Color.yellow),
+        new OverlayImage(new RectangleImage(60, 60, "outline", Color.black),
+            new OverlayOffsetImage(new RectangleImage(6, 30, "solid", Color.yellow), 0, -15,
+                new RectangleImage(60, 60, "solid", Color.darkGray))));
+
+    // Tile with a bot, left and right wire powered with PS ****
+    WorldImage botLeftRightPowPS = new OverlayImage(
+        new StarImage(18, OutlineMode.SOLID, Color.CYAN),
+        new OverlayImage(new RectangleImage(60, 6, "solid", Color.yellow),
+            new OverlayImage(new RectangleImage(60, 60, "outline", Color.black),
+                new OverlayOffsetImage(new RectangleImage(6, 30, "solid", Color.yellow), 0, -15,
+                    new RectangleImage(60, 60, "solid", Color.darkGray)))));
+
+    // Tile with a top, left and right wire unpowered no PS*
+    WorldImage topLeftRight = new OverlayImage(new RectangleImage(60, 6, "solid", Color.lightGray),
+        new OverlayImage(new RectangleImage(60, 60, "outline", Color.black),
+            new OverlayOffsetImage(new RectangleImage(6, 30, "solid", Color.lightGray), 0, 15,
+                new RectangleImage(60, 60, "solid", Color.darkGray))));
+
+    // Tile with a top, left and right wire unpowered with PS ****
+    WorldImage topLeftRightPS = new OverlayImage(new StarImage(18, OutlineMode.SOLID, Color.CYAN),
+        new OverlayImage(new RectangleImage(60, 6, "solid", Color.lightGray),
+            new OverlayImage(new RectangleImage(60, 60, "outline", Color.black),
+                new OverlayOffsetImage(new RectangleImage(6, 30, "solid", Color.lightGray), 0, 15,
+                    new RectangleImage(60, 60, "solid", Color.darkGray)))));
+
+    // Tile with a top, left and right wire powered no PS*
+    WorldImage topLeftRightPow = new OverlayImage(new RectangleImage(60, 6, "solid", Color.yellow),
+        new OverlayImage(new RectangleImage(60, 60, "outline", Color.black),
+            new OverlayOffsetImage(new RectangleImage(6, 30, "solid", Color.yellow), 0, 15,
+                new RectangleImage(60, 60, "solid", Color.darkGray))));
+
+    // Tile with a top, left and right wire powered with PS ****
+    WorldImage topLeftRightPowPS = new OverlayImage(
+        new StarImage(18, OutlineMode.SOLID, Color.CYAN),
+        new OverlayImage(new RectangleImage(60, 6, "solid", Color.yellow),
+            new OverlayImage(new RectangleImage(60, 60, "outline", Color.black),
+                new OverlayOffsetImage(new RectangleImage(6, 30, "solid", Color.yellow), 0, 15,
+                    new RectangleImage(60, 60, "solid", Color.darkGray)))));
+
+    // Tile with a top, bottom and left wire unpowered no PS*
+    WorldImage topBotLeft = new OverlayOffsetImage(
+        new RectangleImage(30, 6, "solid", Color.lightGray), 15, 0,
+        new OverlayImage(new RectangleImage(60, 60, "outline", Color.black),
+            new OverlayImage(new RectangleImage(6, 60, "solid", Color.lightGray),
+                new RectangleImage(60, 60, "solid", Color.darkGray))));
+
+    // Tile with a top, bottom and left wire unpowered with PS ****
+    WorldImage topBotLeftPS = new OverlayImage(new StarImage(18, OutlineMode.SOLID, Color.CYAN),
+        new OverlayOffsetImage(new RectangleImage(30, 6, "solid", Color.lightGray), 15, 0,
+            new OverlayImage(new RectangleImage(60, 60, "outline", Color.black),
+                new OverlayImage(new RectangleImage(6, 60, "solid", Color.lightGray),
+                    new RectangleImage(60, 60, "solid", Color.darkGray)))));
+
+    // Tile with a top, bottom and left wire powered no PS*
+    WorldImage topBotLeftPow = new OverlayOffsetImage(
+        new RectangleImage(30, 6, "solid", Color.yellow), 15, 0,
+        new OverlayImage(new RectangleImage(60, 60, "outline", Color.black),
+            new OverlayImage(new RectangleImage(6, 60, "solid", Color.yellow),
+                new RectangleImage(60, 60, "solid", Color.darkGray))));
+
+    // Tile with a top, bottom and left wire powered with PS ****
+    WorldImage topBotLeftPowPS = new OverlayImage(new StarImage(18, OutlineMode.SOLID, Color.CYAN),
+        new OverlayOffsetImage(new RectangleImage(30, 6, "solid", Color.yellow), 15, 0,
+            new OverlayImage(new RectangleImage(60, 60, "outline", Color.black),
+                new OverlayImage(new RectangleImage(6, 60, "solid", Color.yellow),
+                    new RectangleImage(60, 60, "solid", Color.darkGray)))));
+
+    // Tile with a top, bottom, left and right wire unpowered no PS*
+    WorldImage topBotLeftRight = new OverlayImage(
+        new RectangleImage(60, 6, "solid", Color.lightGray),
+        new OverlayImage(new RectangleImage(60, 60, "outline", Color.black),
+            new OverlayImage(new RectangleImage(6, 60, "solid", Color.lightGray),
+                new RectangleImage(60, 60, "solid", Color.darkGray))));
+
+    // Tile with a top, bottom, left and right wire powered no PS*
+    WorldImage topBotLeftRightPow = new OverlayImage(
+        new RectangleImage(60, 6, "solid", Color.yellow),
+        new OverlayImage(new RectangleImage(60, 60, "outline", Color.black),
+            new OverlayImage(new RectangleImage(6, 60, "solid", Color.yellow),
+                new RectangleImage(60, 60, "solid", Color.darkGray))));
+
+    // Tile with a top, bottom, left and right unpowered and a power station *
+    WorldImage tblrPowerStation = new OverlayImage(new StarImage(18, OutlineMode.SOLID, Color.CYAN),
+        new OverlayImage(new RectangleImage(60, 6, "solid", Color.lightGray),
+            new OverlayImage(new RectangleImage(60, 60, "outline", Color.black),
+                new OverlayImage(new RectangleImage(6, 60, "solid", Color.lightGray),
+                    new RectangleImage(60, 60, "solid", Color.darkGray)))));
+
+    // Tile with a top, bottom, left and right powered and a power station *
+    WorldImage tblrPowerStationPow = new OverlayImage(
+        new StarImage(18, OutlineMode.SOLID, Color.CYAN),
+        new OverlayImage(new RectangleImage(60, 6, "solid", Color.yellow),
+            new OverlayImage(new RectangleImage(60, 60, "outline", Color.black),
+                new OverlayImage(new RectangleImage(6, 60, "solid", Color.yellow),
+                    new RectangleImage(60, 60, "solid", Color.darkGray)))));
+
+    // top unpowered
+    if (this.top && !this.bottom && !this.left && !this.right && !this.powered
+        && !this.powerStation) {
+      return top;
+    }
+    // top unpowered PS
+    else if (this.top && !this.bottom && !this.left && !this.right && !this.powered
+        && this.powerStation) {
+      return topPS;
+    }
+    // top powered
+    else if (this.top && !this.bottom && !this.left && !this.right && this.powered
+        && !this.powerStation) {
+      return topPow;
+    }
+    // top powered PS
+    else if (this.top && !this.bottom && !this.left && !this.right && this.powered
+        && this.powerStation) {
+      return topPowPS;
+    }
+    // left unpowered
+    else if (this.left && !this.bottom && !this.top && !this.right && !this.powered
+        && !this.powerStation) {
+      return left;
+    }
+    // left powered
+    else if (this.left && !this.bottom && !this.top && !this.right && this.powered
+        && !this.powerStation) {
+      return leftPow;
+    }
+    // left unpowered PS
+    else if (this.left && !this.bottom && !this.top && !this.right && !this.powered
+        && this.powerStation) {
+      return leftPS;
+    }
+    // left powered PS
+    else if (this.left && !this.bottom && !this.top && !this.right && this.powered
+        && this.powerStation) {
+      return leftPowPS;
+    }
+
+    // right unpowered
+    else if (this.right && !this.bottom && !this.top && !this.left && !this.powered
+        && !this.powerStation) {
+      return right;
+    }
+    // right powered
+    else if (this.right && !this.bottom && !this.top && !this.left && this.powered
+        && !this.powerStation) {
+      return rightPow;
+    }
+    // right unpowered PS
+    else if (this.right && !this.bottom && !this.top && !this.left && !this.powered
+        && this.powerStation) {
+      return rightPS;
+    }
+    // right powered PS
+    else if (this.right && !this.bottom && !this.top && !this.left && this.powered
+        && this.powerStation) {
+      return rightPowPS;
+    }
+
+    // bottom unpowered
+    else if (this.bottom && !this.top && !this.left && !this.right && !this.powered
+        && !this.powerStation) {
+      return bot;
+      // bottom unpowered PS
+    }
+    else if (this.bottom && !this.top && !this.left && !this.right && !this.powered
+        && this.powerStation) {
+      return botPS;
+    }
+    // bottom powered
+    else if (this.bottom && !this.top && !this.left && !this.right && this.powered
+        && !this.powerStation) {
+      return botPow;
+    }
+    // bottom powered PS
+    else if (this.bottom && !this.top && !this.left && !this.right && this.powered
+        && this.powerStation) {
+      return botPowPS;
+    }
+    // tb unpowered
+    else if (this.bottom && this.top && !this.left && !this.right && !this.powered
+        && !this.powerStation) {
+      return topBot;
+    }
+    // tb unpowered PS
+    else if (this.bottom && this.top && !this.left && !this.right && !this.powered
+        && this.powerStation) {
+      return topBotPS;
+    }
+    // top bottom powered
+    else if (this.bottom && this.top && !this.left && !this.right && this.powered
+        && !this.powerStation) {
+      return topBotPow;
+    }
+    // top bottom powered PS
+    else if (this.bottom && this.top && !this.left && !this.right && this.powered
+        && this.powerStation) {
+      return topBotPowPS;
+    }
+    // lr unpowered
+    else if (this.left && this.right && !this.top && !this.bottom && !this.powered
+        && !this.powerStation) {
+      return leftRight;
+    }
+    // lr unpowered PS
+    else if (this.left && this.right && !this.top && !this.bottom && !this.powered
+        && this.powerStation) {
+      return leftRightPS;
+    }
+    // left right powered
+    else if (this.left && this.right && !this.top && !this.bottom && this.powered
+        && !this.powerStation) {
+      return leftRightPow;
+    }
+    // left right powered PS
+    else if (this.left && this.right && !this.top && !this.bottom && this.powered
+        && this.powerStation) {
+      return leftRightPowPS;
+    }
+    // tbr unpowered and not powerstation
+    else if (this.bottom && this.top && this.right && !this.left && !this.powered
+        && !this.powerStation) {
+      return topBotRight;
+    }
+    // tbr unpowered PS
+    else if (this.bottom && this.top && this.right && !this.left && !this.powered
+        && this.powerStation) {
+      return topBotRightPS;
+    }
+    // tbr powered and not powerstation
+    else if (this.bottom && this.top && this.right && !this.left && this.powered
+        && !this.powerStation) {
+      return topBotRightPow;
+    }
+    // tbr powered PS
+    else if (this.bottom && this.top && this.right && !this.left && this.powered
+        && this.powerStation) {
+      return topBotRightPowPS;
+    }
+    // tbl unpowered and not powerstation
+    else if (this.bottom && this.top && this.left && !this.right && !this.powered
+        && !this.powerStation) {
+      return topBotLeft;
+    }
+    // tbl unpowered PS
+    else if (this.bottom && this.top && this.left && !this.right && !this.powered
+        && this.powerStation) {
+      return topBotLeftPS;
+    }
+    // tbl powered and not powerstation
+    else if (this.bottom && this.top && this.left && !this.right && this.powered
+        && !this.powerStation) {
+      return topBotLeftPow;
+    }
+    // tbl powered PS
+    else if (this.bottom && this.top && this.left && !this.right && this.powered
+        && this.powerStation) {
+      return topBotLeftPowPS;
+    }
+
+    // tlr unpowered and not powerstation
+    else if (this.top && this.left && this.right && !this.bottom && !this.powered
+        && !this.powerStation) {
+      return topLeftRight;
+    }
+    // tlr unpowered PS
+    else if (this.top && this.left && this.right && !this.bottom && !this.powered
+        && this.powerStation) {
+      return topLeftRightPS;
+    }
+    // tlr powered and not powerstation
+    else if (this.top && this.left && this.right && !this.bottom && this.powered
+        && !this.powerStation) {
+      return topLeftRightPow;
+    }
+    // tlr powered PS
+    else if (this.top && this.left && this.right && !this.bottom && this.powered
+        && this.powerStation) {
+      return topLeftRightPowPS;
+    }
+
+    // blr unpowered and not powerstation
+    else if (this.bottom && this.left && this.right && !this.top && !this.powered
+        && !this.powerStation) {
+      return botLeftRight;
+    }
+    // blr unpowered PS
+    else if (this.bottom && this.left && this.right && !this.top && !this.powered
+        && this.powerStation) {
+      return botLeftRightPS;
+    }
+    // blr powered and not powerstation
+    else if (this.bottom && this.left && this.right && !this.top && this.powered
+        && !this.powerStation) {
+      return botLeftRightPow;
+    }
+    // blr powered PS
+    else if (this.bottom && this.left && this.right && !this.top && this.powered
+        && this.powerStation) {
+      return botLeftRightPowPS;
+    }
+
+    // tblr unpowered not powered and not powerstation
+    else if (this.bottom && this.top && this.left && this.right && !this.powered
+        && !this.powerStation) {
+      return topBotLeftRight;
+    }
+    // tblr powered and not powerstation
+    else if (this.bottom && this.top && this.left && this.right && this.powered
+        && !this.powerStation) {
+      return topBotLeftRightPow;
+
+    } // tblr unpowered with powerstation
+    else if (this.bottom && this.top && this.left && this.right && !this.powered
+        && this.powerStation) {
+      return tblrPowerStation;
+    }
+    // tblr powered and powerstation
+    else {
+      return tblrPowerStationPow;
+    }
+  }
+}
+
+//all examples and tests for LightEmALl
+class ExamplesLightEmAll {
+
+  ArrayList<GamePiece> col0 = new ArrayList<>(
+      Arrays.asList(new GamePiece(0, 0, false, false, false, true, false, false),
+          new GamePiece(1, 0, false, false, true, true, false, false),
+          new GamePiece(2, 0, false, false, true, true, false, false),
+          new GamePiece(3, 0, false, false, true, true, false, false),
+          new GamePiece(4, 0, false, true, true, true, false, false),
+          new GamePiece(5, 0, false, false, true, true, false, false),
+          new GamePiece(6, 0, false, false, true, true, false, false),
+          new GamePiece(7, 0, false, false, true, true, false, false),
+          new GamePiece(8, 0, false, false, true, false, false, false)));
+
+  ArrayList<GamePiece> col1 = new ArrayList<>(
+      Arrays.asList(new GamePiece(0, 1, false, false, false, true, false, false),
+          new GamePiece(1, 1, false, false, true, true, false, false),
+          new GamePiece(2, 1, false, false, true, true, false, false),
+          new GamePiece(3, 1, false, false, true, true, false, false),
+          new GamePiece(4, 1, true, true, true, true, false, false),
+          new GamePiece(5, 1, false, false, true, true, false, false),
+          new GamePiece(6, 1, false, false, true, true, false, false),
+          new GamePiece(7, 1, false, false, true, true, false, false),
+          new GamePiece(8, 1, false, false, true, false, false, false)));
+
+  ArrayList<GamePiece> col2 = new ArrayList<>(
+      Arrays.asList(new GamePiece(0, 2, false, false, false, true, false, false),
+          new GamePiece(1, 2, false, false, true, true, false, false),
+          new GamePiece(2, 2, false, false, true, true, false, false),
+          new GamePiece(3, 2, false, false, true, true, false, false),
+          new GamePiece(4, 2, true, true, true, true, false, false),
+          new GamePiece(5, 2, false, false, true, true, false, false),
+          new GamePiece(6, 2, false, false, true, true, false, false),
+          new GamePiece(7, 2, false, false, true, true, false, false),
+          new GamePiece(8, 2, false, false, true, false, false, false)));
+
+  ArrayList<GamePiece> col3 = new ArrayList<>(
+      Arrays.asList(new GamePiece(0, 3, false, false, false, true, false, false),
+          new GamePiece(1, 3, false, false, true, true, false, false),
+          new GamePiece(2, 3, false, false, true, true, false, false),
+          new GamePiece(3, 3, false, false, true, true, false, false),
+          new GamePiece(4, 3, true, true, true, true, false, false),
+          new GamePiece(5, 3, false, false, true, true, false, false),
+          new GamePiece(6, 3, false, false, true, true, false, false),
+          new GamePiece(7, 3, false, false, true, true, false, false),
+          new GamePiece(8, 3, false, false, true, false, false, false)));
+
+  // has powerstation
+  ArrayList<GamePiece> col4 = new ArrayList<>(
+      Arrays.asList(new GamePiece(0, 4, false, false, false, true, false, false),
+          new GamePiece(1, 4, false, false, true, true, false, false),
+          new GamePiece(2, 4, false, false, true, true, false, false),
+          new GamePiece(3, 4, false, false, true, true, false, false),
+          new GamePiece(4, 4, true, true, true, true, true, true),
+          new GamePiece(5, 4, false, false, true, true, false, false),
+          new GamePiece(6, 4, false, false, true, true, false, false),
+          new GamePiece(7, 4, false, false, true, true, false, false),
+          new GamePiece(8, 4, false, false, true, false, false, false)));
+
+  ArrayList<GamePiece> col5 = new ArrayList<>(
+      Arrays.asList(new GamePiece(0, 5, false, false, false, true, false, false),
+          new GamePiece(1, 5, false, false, true, true, false, false),
+          new GamePiece(2, 5, false, false, true, true, false, false),
+          new GamePiece(3, 5, false, false, true, true, false, false),
+          new GamePiece(4, 5, true, true, true, true, false, false),
+          new GamePiece(5, 5, false, false, true, true, false, false),
+          new GamePiece(6, 5, false, false, true, true, false, false),
+          new GamePiece(7, 5, false, false, true, true, false, false),
+          new GamePiece(8, 5, false, false, true, false, false, false)));
+
+  ArrayList<GamePiece> col6 = new ArrayList<>(
+      Arrays.asList(new GamePiece(0, 5, false, false, false, true, false, false),
+          new GamePiece(1, 6, false, false, true, true, false, false),
+          new GamePiece(2, 6, false, false, true, true, false, false),
+          new GamePiece(3, 6, false, false, true, true, false, false),
+          new GamePiece(4, 6, true, true, true, true, false, false),
+          new GamePiece(5, 6, false, false, true, true, false, false),
+          new GamePiece(6, 6, false, false, true, true, false, false),
+          new GamePiece(7, 6, false, false, true, true, false, false),
+          new GamePiece(8, 6, false, false, true, false, false, false)));
+
+  ArrayList<GamePiece> col7 = new ArrayList<>(
+      Arrays.asList(new GamePiece(0, 0, false, false, false, true, false, false),
+          new GamePiece(1, 7, false, false, true, true, false, false),
+          new GamePiece(2, 7, false, false, true, true, false, false),
+          new GamePiece(3, 7, false, false, true, true, false, false),
+          new GamePiece(4, 7, true, false, true, true, false, false),
+          new GamePiece(5, 7, false, false, true, true, false, false),
+          new GamePiece(6, 7, false, false, true, true, false, false),
+          new GamePiece(7, 7, false, false, true, true, false, false),
+          new GamePiece(8, 7, false, false, true, false, false, false)));
+
+  ArrayList<ArrayList<GamePiece>> board1 = new ArrayList<ArrayList<GamePiece>>(Arrays.asList(
+      this.col0, this.col1, this.col2, this.col3, this.col4, this.col5, this.col6, this.col7));
+
+  // board for testing
+  ArrayList<GamePiece> c0 = new ArrayList<>(
+      Arrays.asList(new GamePiece(0, 0, false, false, false, true, false, false),
+          new GamePiece(1, 0, false, false, true, true, false, false),
+          new GamePiece(2, 0, false, false, true, true, false, false),
+          new GamePiece(3, 0, false, false, true, true, false, false),
+          new GamePiece(4, 0, false, true, true, true, false, false),
+          new GamePiece(5, 0, false, false, true, true, false, false),
+          new GamePiece(6, 0, false, false, true, true, false, false),
+          new GamePiece(7, 0, false, false, true, true, false, false),
+          new GamePiece(8, 0, false, false, true, false, false, false)));
+
+  ArrayList<GamePiece> c1 = new ArrayList<>(
+      Arrays.asList(new GamePiece(0, 1, false, false, false, true, false, false),
+          new GamePiece(1, 1, false, false, true, true, false, false),
+          new GamePiece(2, 1, false, false, true, true, false, false),
+          new GamePiece(3, 1, false, false, true, true, false, false),
+          new GamePiece(4, 1, true, true, true, true, false, false),
+          new GamePiece(5, 1, false, false, true, true, false, false),
+          new GamePiece(6, 1, false, false, true, true, false, false),
+          new GamePiece(7, 1, false, false, true, true, false, false),
+          new GamePiece(8, 1, false, false, true, false, false, false)));
+
+  ArrayList<GamePiece> c2 = new ArrayList<>(
+      Arrays.asList(new GamePiece(0, 2, false, false, false, true, false, false),
+          new GamePiece(1, 2, false, false, true, true, false, false),
+          new GamePiece(2, 2, false, false, true, true, false, false),
+          new GamePiece(3, 2, false, false, true, true, false, false),
+          new GamePiece(4, 2, true, true, true, true, false, false),
+          new GamePiece(5, 2, false, false, true, true, false, false),
+          new GamePiece(6, 2, false, false, true, true, false, false),
+          new GamePiece(7, 2, false, false, true, true, false, false),
+          new GamePiece(8, 2, false, false, true, false, false, false)));
+
+  ArrayList<GamePiece> c3 = new ArrayList<>(
+      Arrays.asList(new GamePiece(0, 3, false, false, false, true, false, false),
+          new GamePiece(1, 3, false, false, true, true, false, false),
+          new GamePiece(2, 3, false, false, true, true, false, false),
+          new GamePiece(3, 3, false, false, true, true, false, false),
+          new GamePiece(4, 3, true, true, true, true, false, false),
+          new GamePiece(5, 3, false, false, true, true, false, false),
+          new GamePiece(6, 3, false, false, true, true, false, false),
+          new GamePiece(7, 3, false, false, true, true, false, false),
+          new GamePiece(8, 3, false, false, true, false, false, false)));
+
+  // has powerstation
+  ArrayList<GamePiece> c4 = new ArrayList<>(
+      Arrays.asList(new GamePiece(0, 4, false, false, false, true, false, false),
+          new GamePiece(1, 4, false, false, true, true, false, false),
+          new GamePiece(2, 4, false, false, true, true, false, false),
+          new GamePiece(3, 4, false, false, true, true, false, false),
+          new GamePiece(4, 4, true, true, true, true, true, true),
+          new GamePiece(5, 4, false, false, true, true, false, false),
+          new GamePiece(6, 4, false, false, true, true, false, false),
+          new GamePiece(7, 4, false, false, true, true, false, false),
+          new GamePiece(8, 4, false, false, true, false, false, false)));
+
+  ArrayList<GamePiece> c5 = new ArrayList<>(
+      Arrays.asList(new GamePiece(0, 5, false, false, false, true, false, false),
+          new GamePiece(1, 5, false, false, true, true, false, false),
+          new GamePiece(2, 5, false, false, true, true, false, false),
+          new GamePiece(3, 5, false, false, true, true, false, false),
+          new GamePiece(4, 5, true, true, true, true, false, false),
+          new GamePiece(5, 5, false, false, true, true, false, false),
+          new GamePiece(6, 5, false, false, true, true, false, false),
+          new GamePiece(7, 5, false, false, true, true, false, false),
+          new GamePiece(8, 5, false, false, true, false, false, false)));
+
+  ArrayList<GamePiece> c6 = new ArrayList<>(
+      Arrays.asList(new GamePiece(0, 5, false, false, false, true, false, false),
+          new GamePiece(1, 6, false, false, true, true, false, false),
+          new GamePiece(2, 6, false, false, true, true, false, false),
+          new GamePiece(3, 6, false, false, true, true, false, false),
+          new GamePiece(4, 6, true, true, true, true, false, false),
+          new GamePiece(5, 6, false, false, true, true, false, false),
+          new GamePiece(6, 6, false, false, true, true, false, false),
+          new GamePiece(7, 6, false, false, true, true, false, false),
+          new GamePiece(8, 6, false, false, true, false, false, false)));
+
+  ArrayList<GamePiece> c7 = new ArrayList<>(
+      Arrays.asList(new GamePiece(0, 0, false, false, false, true, false, false),
+          new GamePiece(1, 7, false, false, true, true, false, false),
+          new GamePiece(2, 7, false, false, true, true, false, false),
+          new GamePiece(3, 7, false, false, true, true, false, false),
+          new GamePiece(4, 7, true, false, true, true, false, false),
+          new GamePiece(5, 7, false, false, true, true, false, false),
+          new GamePiece(6, 7, false, false, true, true, false, false),
+          new GamePiece(7, 7, false, false, true, true, false, false),
+          new GamePiece(8, 7, false, false, true, false, false, false)));
+
+  ArrayList<ArrayList<GamePiece>> board2 = new ArrayList<ArrayList<GamePiece>>(
+      Arrays.asList(this.c0, this.c1, this.c2, this.c3, this.c4, this.c5, this.c6, this.c7));
+
+  LightEmAll lightEmAlltester = new LightEmAll(60 * 8, 60 * 9, this.board2);
+
+  GamePiece bot = new GamePiece(0, 0, false, false, false, true, false, false);
+  GamePiece topBot = new GamePiece(1, 0, false, false, true, true, false, false);
+  GamePiece topBotRight = new GamePiece(4, 0, false, true, true, true, false, false);
+  GamePiece top = new GamePiece(8, 0, false, false, true, false, false, false);
+  GamePiece topBotLeft = new GamePiece(4, 7, true, false, true, true, false, false);
+  GamePiece tblr = new GamePiece(4, 1, true, true, true, true, false, false);
+  GamePiece leftRightTop = new GamePiece(0, 0, true, true, true, false, false, false);
+  GamePiece leftRightBot = new GamePiece(0, 0, true, true, false, true, false, false);
+  GamePiece left = new GamePiece(8, 0, true, false, false, false, false, false);
+  GamePiece right = new GamePiece(8, 0, false, true, false, false, false, false);
+
+  GamePiece addPS1 = new GamePiece(0, 0, false, false, false, true, false, false);
+  GamePiece addPS2 = new GamePiece(1, 0, false, false, true, true, false, false);
+  GamePiece addPS3 = new GamePiece(4, 0, false, true, true, true, false, false);
+  GamePiece addPS4 = new GamePiece(8, 0, false, false, true, false, false, false);
+  GamePiece addPS5 = new GamePiece(4, 7, true, false, true, true, false, false);
+
+  GamePiece removePS1 = new GamePiece(0, 0, false, false, false, true, true, false);
+  GamePiece removePS2 = new GamePiece(1, 0, false, false, true, true, true, false);
+  GamePiece removePS3 = new GamePiece(4, 0, false, true, true, true, true, false);
+  GamePiece removePS4 = new GamePiece(8, 0, false, false, true, false, true, false);
+  GamePiece removePS5 = new GamePiece(4, 7, true, false, true, true, false, false);
+
+  GamePiece power1 = new GamePiece(0, 0, false, false, false, true, true, false);
+  GamePiece power2 = new GamePiece(1, 0, false, false, true, true, true, false);
+  GamePiece power3 = new GamePiece(4, 0, false, true, true, true, true, false);
+  GamePiece power4 = new GamePiece(8, 0, false, false, true, false, true, false);
+  GamePiece power5 = new GamePiece(4, 7, true, false, true, true, false, false);
+  GamePiece power6 = new GamePiece(3, 4, true, true, true, true, false, false);
+  GamePiece power7 = new GamePiece(4, 2, true, false, true, true, false, true);
+
+  GamePiece botDraw = new GamePiece(0, 0, false, false, false, true, false, false);
+  GamePiece topBotDraw = new GamePiece(1, 0, false, false, true, true, false, true);
+  GamePiece topBotRightDraw = new GamePiece(4, 0, false, true, true, true, true, false);
+  GamePiece topDraw = new GamePiece(8, 0, false, false, true, false, false, false);
+  GamePiece topBotLeftDraw = new GamePiece(4, 7, true, false, true, true, false, true);
+
+  // test drawGamePiece
+  boolean testDrawGamePiece(Tester t) {
+    return t.checkExpect(botDraw.drawGamePiece(),
+        new OverlayImage(new RectangleImage(60, 60, "outline", Color.black),
+            new OverlayOffsetImage(new RectangleImage(6, 30, "solid", Color.lightGray), 0, -15,
+                new RectangleImage(60, 60, "solid", Color.darkGray))))
+        && t.checkExpect(topBotDraw.drawGamePiece(),
+            new OverlayImage(new RectangleImage(60, 60, "outline", Color.black),
+                new OverlayImage(new RectangleImage(6, 60, "solid", Color.yellow),
+                    new RectangleImage(60, 60, "solid", Color.darkGray))))
+        && t.checkExpect(topBotRightDraw.drawGamePiece(),
+            new OverlayImage(new StarImage(18, OutlineMode.SOLID, Color.CYAN),
+                new OverlayOffsetImage(new RectangleImage(30, 6, "solid", Color.lightGray), -15, 0,
+                    new OverlayImage(new RectangleImage(60, 60, "outline", Color.black),
+                        new OverlayImage(new RectangleImage(6, 60, "solid", Color.lightGray),
+                            new RectangleImage(60, 60, "solid", Color.darkGray))))))
+        && t.checkExpect(topDraw.drawGamePiece(),
+            new OverlayImage(new RectangleImage(60, 60, "outline", Color.black),
+                new OverlayOffsetImage(new RectangleImage(6, 30, "solid", Color.lightGray), 0, 15,
+                    new RectangleImage(60, 60, "solid", Color.darkGray))))
+        && t.checkExpect(topBotLeftDraw.drawGamePiece(),
+            new OverlayOffsetImage(new RectangleImage(30, 6, "solid", Color.yellow), 15, 0,
+                new OverlayImage(new RectangleImage(60, 60, "outline", Color.black),
+                    new OverlayImage(new RectangleImage(6, 60, "solid", Color.yellow),
+                        new RectangleImage(60, 60, "solid", Color.darkGray)))));
+  }
+
+  // test for onKey
+  boolean testOnKeyEvent(Tester t) {
+    // initTestConditions();
+    this.lightEmAlltester.onKeyEvent("up");
+    this.lightEmAlltester.onKeyEvent("left");
+    this.lightEmAlltester.onKeyEvent("up");
+    return t.checkExpect(this.lightEmAlltester.powerCol, 4)
+        && t.checkExpect(this.lightEmAlltester.powerRow, 2);
+  }
+
+  // test for AddPowerStation
+  boolean testAddPowerStation(Tester t) {
+    addPS1.addPowerStation();
+    addPS2.addPowerStation();
+    addPS3.addPowerStation();
+    addPS4.addPowerStation();
+    addPS5.addPowerStation();
+    return t.checkExpect(this.addPS1, new GamePiece(0, 0, false, false, false, true, true, false))
+        && t.checkExpect(this.addPS2, new GamePiece(1, 0, false, false, true, true, true, false))
+        && t.checkExpect(this.addPS3, new GamePiece(4, 0, false, true, true, true, true, false))
+        && t.checkExpect(this.addPS4, new GamePiece(8, 0, false, false, true, false, true, false))
+        && t.checkExpect(this.addPS5, new GamePiece(4, 7, true, false, true, true, true, false));
+  }
+
+  // test for removePowerStation
+  boolean testRemovePowerStation(Tester t) {
+    removePS1.removePowerStation();
+    removePS2.removePowerStation();
+    removePS3.removePowerStation();
+    removePS4.removePowerStation();
+    removePS5.removePowerStation();
+    return t.checkExpect(this.removePS1,
+        new GamePiece(0, 0, false, false, false, true, false, false))
+        && t.checkExpect(this.removePS2,
+            new GamePiece(1, 0, false, false, true, true, false, false))
+        && t.checkExpect(this.removePS3, new GamePiece(4, 0, false, true, true, true, false, false))
+        && t.checkExpect(this.removePS4,
+            new GamePiece(8, 0, false, false, true, false, false, false))
+        && t.checkExpect(this.removePS5,
+            new GamePiece(4, 7, true, false, true, true, false, false));
+  }
+
+  // test for powerUp
+  boolean testPowerUp(Tester t) {
+    power1.powerUp();
+    power2.powerUp();
+    power3.powerUp();
+    power4.powerUp();
+    power5.powerUp();
+    power6.powerUp();
+    power7.powerUp();
+    return t.checkExpect(this.power1, new GamePiece(0, 0, false, false, false, true, true, true))
+        && t.checkExpect(this.power2, new GamePiece(1, 0, false, false, true, true, true, true))
+        && t.checkExpect(this.power3, new GamePiece(4, 0, false, true, true, true, true, true))
+        && t.checkExpect(this.power4, new GamePiece(8, 0, false, false, true, false, true, true))
+        && t.checkExpect(this.power5, new GamePiece(4, 7, true, false, true, true, false, true))
+        && t.checkExpect(this.power6, new GamePiece(3, 4, true, true, true, true, false, true))
+        && t.checkExpect(this.power7, new GamePiece(4, 2, true, false, true, true, false, true));
+  }
+
+  // l r t b
+  // test for rotateGamePiece
+  boolean testRotateGamePiece(Tester t) {
+    // initTestConditions();
+    bot.rotateGamePiece();
+    top.rotateGamePiece();
+    topBotLeft.rotateGamePiece();
+    topBotRight.rotateGamePiece();
+
+    return t.checkExpect(this.bot, new GamePiece(0, 0, false, true, false, false, false, false))
+        && t.checkExpect(this.top, new GamePiece(8, 0, true, false, false, false, false, false))
+        && t.checkExpect(this.topBotLeft,
+            new GamePiece(4, 7, true, true, false, true, false, false))
+        && t.checkExpect(this.topBotRight,
+            new GamePiece(4, 0, true, true, true, false, false, false));
+  }
+
+  // l r t b
+  // test for isConnected
+  boolean testIsConnected(Tester t) {
+    // Create GamePiece objects for testing
+    GamePiece piece1 = new GamePiece(0, 0, false, true, true, false, false, false);
+    GamePiece piece2 = new GamePiece(0, 1, true, false, true, false, false, false);
+    GamePiece piece3 = new GamePiece(1, 0, false, true, false, true, false, false);
+    GamePiece piece4 = new GamePiece(1, 1, true, false, false, true, false, false);
+    GamePiece piece5 = new GamePiece(2, 2, false, true, true, true, false, false);
+    // tblr piece
+    GamePiece piece6 = new GamePiece(1, 1, true, true, true, true, false, false);
+
+    GamePiece piece7 = new GamePiece(0, 0, false, true, false, true, false, false);
+    GamePiece piece8 = new GamePiece(1, 0, false, true, true, false, false, false);
+    GamePiece piece9 = new GamePiece(2, 0, false, true, true, false, false, false);
+
+    GamePiece piece10 = new GamePiece(0, 1, false, false, true, true, false, false);
+    GamePiece piece11 = new GamePiece(2, 1, true, true, true, false, false, false);
+
+    GamePiece piece12 = new GamePiece(0, 2, true, false, false, true, false, false);
+    GamePiece piece13 = new GamePiece(1, 2, true, false, false, true, false, false);
+    GamePiece piece14 = new GamePiece(2, 2, false, true, true, false, false, false);
+
+    // Test adjacent pieces with connection
+    return t.checkExpect(piece1.isConnected(piece2), true)
+        && t.checkExpect(piece8.isConnected(piece6), true)
+
+        && t.checkExpect(piece10.isConnected(piece6), true)
+        && t.checkExpect(piece11.isConnected(piece6), true)
+
+        && t.checkExpect(piece13.isConnected(piece6), true)
+
+        // Test non-adjacent pieces
+        && t.checkExpect(piece2.isConnected(piece4), false)
+        && t.checkExpect(piece1.isConnected(piece4), false)
+        && t.checkExpect(piece1.isConnected(piece5), false)
+
+        // Test adjacent pieces with no connection
+        && t.checkExpect(piece1.isConnected(piece3), false)
+        && t.checkExpect(piece1.isConnected(piece3), false)
+        && t.checkExpect(piece2.isConnected(piece5), false)
+        && t.checkExpect(piece7.isConnected(piece6), false)
+        && t.checkExpect(piece9.isConnected(piece6), false)
+        && t.checkExpect(piece12.isConnected(piece6), false)
+        && t.checkExpect(piece14.isConnected(piece6), false);
+  }
+
+  // Test for the makeScene method
+  boolean testMakeScene(Tester t) {
+    LightEmAll testMakeScene = new LightEmAll(60 * 8, 60 * 9, this.board2);
+
+    // expected worldScene
+    WorldScene expectedScene = new WorldScene(8 * 60, 9 * 60);
+
+    // images for each cell to the expected scene
+    for (int r = 0; r < board2.size(); r++) {
+      for (int c = 0; c < board2.get(0).size(); c++) {
+        expectedScene.placeImageXY(board2.get(r).get(c).drawGamePiece(), (r * 60) + 30,
+            (c * 60) + 30);
+      }
+    }
+    WorldScene actualScene = testMakeScene.makeScene();
+    return t.checkExpect(actualScene, expectedScene);
+  }
+
+  // test method for hasPathBetween
+  void testHasPathBetween(Tester t) {
+    GamePiece piece1 = new GamePiece(0, 0, false, true, true, false, false, false);
+    GamePiece piece2 = new GamePiece(0, 1, true, false, true, false, false, false);
+    piece1.hasPathBetween(piece2);
+    return t.checkExpect(piece1.hasPathBetween(piece2), null);
+  }
+
+  // displays the worldScene
+  void testBigBang(Tester t) {
+    LightEmAll world = new LightEmAll(60 * 8, 60 * 9, this.board1);
+    int worldWidth = 550;
+    int worldHeight = 560;
+    world.bigBang(worldWidth, worldHeight);
+  }
+}

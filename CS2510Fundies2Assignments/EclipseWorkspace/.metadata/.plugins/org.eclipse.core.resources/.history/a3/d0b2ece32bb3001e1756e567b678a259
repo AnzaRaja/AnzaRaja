@@ -1,0 +1,29 @@
+// to represent Soup
+interface ISoup {
+}
+
+// to represent a type of broth
+class Broth implements ISoup {
+  String type;
+  
+  Broth(String type) {
+    this.type = type;
+  }
+}
+
+// to represent an ingredient
+class Ingredient implements ISoup {
+  ISoup more;
+  String name;
+  
+  Ingredient(ISoup more, String name) {
+    this.more = more;
+    this.name = name;
+  }
+}
+
+//  examples of Soup
+class ExamplesSoup{
+  ExamplesSoup() {}
+  
+  

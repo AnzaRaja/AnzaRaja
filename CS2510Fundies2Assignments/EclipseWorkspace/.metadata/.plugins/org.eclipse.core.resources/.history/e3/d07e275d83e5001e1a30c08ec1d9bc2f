@@ -1,0 +1,79 @@
+import java.util.ArrayList;
+//import tester.Tester;
+
+// to represent an tree
+interface Tree {
+
+  //gets the total value of a node
+  public int calculateVal();
+
+  /*
+   * //does this string contain any letter not in the alphabet. 0 is false and 1
+   * is true. ArrayList<Boolean> encode(String word);
+   */
+}
+
+// to represent the Huffman class
+class Huffman {
+  ArrayList<String> letters;
+  ArrayList<Integer> frequencies;
+
+  Huffman(ArrayList<String> letters, ArrayList<Integer> frequencies) {
+    if (letters.size() != frequencies.size()) {
+      throw new IllegalArgumentException("lists are different lengths");
+    }
+    else {
+      if (letters.size() < 2) {
+        throw new IllegalArgumentException("length of list of strings < 2");
+      }
+      else {
+        this.letters = letters;
+        this.frequencies = frequencies;
+      }
+    }
+  }
+}
+
+// to represent a single node
+class HuffmanNode implements Tree {
+  int total;
+  Tree left;
+  Tree right;
+
+  HuffmanNode(int total, Tree left, Tree right) {
+    total = this.calculateVal();
+    this.left = left;
+    this.right = right;
+  }
+
+  //gets the total value of a node
+  public int calculateVal() {
+    return this.left.calculateVal() + this.right.calculateVal();
+  }
+}
+
+// to represent a leaf
+class Leaf implements Tree {
+  char data;
+  int frequency;
+
+  Leaf(char data, int frequency) {
+    this.data = data;
+    this.frequency = frequency;
+  }
+
+  // gets the total value of a node
+  public int calculateVal() {
+    return this.frequency;
+  }
+
+  // pairs the items in the two lists using a loop
+  
+  
+  // sorts the list according to the frequency
+}
+
+/*
+ * // does this string contain any letter not in the alphabet. 0 is false and 1
+ * is true. ArrayList<Boolean> encode(String word) { return this; }
+ */

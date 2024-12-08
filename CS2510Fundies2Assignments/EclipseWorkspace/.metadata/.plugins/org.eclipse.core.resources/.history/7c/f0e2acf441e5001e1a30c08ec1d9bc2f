@@ -1,0 +1,28 @@
+import java.util.ArrayList;
+//import tester.Tester;
+
+// to represent the Huffman class
+class Huffman {
+  ArrayList<String> letters;
+  ArrayList<Integer> frequencies;
+
+  Huffman(ArrayList<String> letters, ArrayList<Integer> frequencies) {
+    this.letters = letters;
+    this.frequencies = frequencies;
+  }
+}
+
+// to represent a single node
+class HuffmanNode {
+  char data;
+  int frequency;
+  HuffmanNode left;
+  HuffmanNode right;
+
+  HuffmanNode(char data, int frequency) {
+      this.data = data;
+      this.frequency = frequency;
+      left = null;
+      right = null;
+  }
+}

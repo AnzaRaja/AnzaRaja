@@ -1,0 +1,157 @@
+import java.util.ArrayList;
+import java.util.Arrays;
+//import tester.Tester;
+import java.util.Collections;
+import java.util.Comparator;
+
+// to represent an tree
+interface ITree {
+
+  // gets the total value of a node
+  public int calculateVal();
+
+  /*
+   * //does this string contain any letter not in the alphabet. 0 is false and 1
+   * is true. ArrayList<Boolean> encode(String word);
+   */
+}
+
+// to represent the Huffman class
+class Huffman {
+  ArrayList<String> letters;
+  ArrayList<Integer> frequencies;
+
+  Huffman(ArrayList<String> letters, ArrayList<Integer> frequencies) {
+    if (letters.size() != frequencies.size()) {
+      throw new IllegalArgumentException("lists are different lengths");
+    }
+    else {
+      if (letters.size() < 2) {
+        throw new IllegalArgumentException("length of list of strings < 2");
+      }
+      else {
+        this.letters = letters;
+        this.frequencies = frequencies;
+      }
+    }
+
+    // to represent the current pairs
+    ArrayList<ITree> pairs = new ArrayList<ITree>();
+
+    // makes a list of pairs
+    for (int i = 0; i < letters.size(); i = i + 1) {
+      pairs.add(new Leaf(letters.get(i), frequencies.get(i)));
+    }
+
+    // sorts the list of pairs according to the frequency
+    Collections.sort(pairs, new SortByFrequency());
+
+    // builds the forest
+    while (pairs.size() > 0) {
+      ITree currNode = new HuffmanNode(pairs.get(0).calculateVal() + pairs.get(1).calculateVal(),
+          pairs.get(0), pairs.get(1));
+      insert(currNode, pairs);
+      pairs.remove(0);
+      pairs.remove(0);
+    }
+  }
+
+  // inserts
+  void insert(ITree currPair, ArrayList<ITree> tree) {
+    for (int i = 0; i < tree.size(); i = i + 1) {
+      if (currPair.calculateVal() < tree.get(i + 1).calculateVal()) {
+        tree.add(i, currPair);
+        return;
+      }
+    }
+  }
+
+  // An ArrayList of booleans representing the encoding of the given string (0 =
+  // false, 1 = true)
+  ArrayList<Boolean> encode(String string) {
+    for (int i = 0; i < string.length(); i++) {
+      
+   // Find the index of the character in the alphabet
+      int index = letters.indexOf(String.valueOf(i));
+      if (index == -1) {
+          throw new IllegalArgumentException("Tried to encode " + i + " but that is not part of the language.");
+      }
+    }
+    return null;
+  }
+}
+
+// sorts the arrayList by frequency in ascending order
+class SortByFrequency implements Comparator<ITree> {
+
+  public int compare(ITree t1, ITree t2) {
+    return t1.calculateVal() - t2.calculateVal();
+  }
+}
+
+// to represent a single node
+class HuffmanNode implements ITree {
+  int total;
+  ITree left;
+  ITree right;
+
+  HuffmanNode(int total, ITree left, ITree right) {
+    total = this.calculateVal();
+    this.left = left;
+    this.right = right;
+  }
+
+  // gets the total value of a node
+  public int calculateVal() {
+    return this.left.calculateVal() + this.right.calculateVal();
+  }
+}
+
+// to represent a leaf
+class Leaf implements ITree {
+  String data;
+  int frequency;
+
+  Leaf(String data, int frequency) {
+    this.data = data;
+    this.frequency = frequency;
+  }
+
+  // gets the total value of a node
+  public int calculateVal() {
+    return this.frequency;
+  }
+}
+
+/*
+ * // does this string contain any letter not in the alphabet. 0 is false and 1
+ * is true. ArrayList<Boolean> encode(String word) { return this; }
+ */
+
+// examples class
+class ExamplesTree {
+  ExamplesTree() {
+
+    // String list
+    ArrayList<String> stringList = new ArrayList<>();
+    stringList.addAll(
+        Arrays.asList("a", "d", "c", "z", "t", "i", "s", "e", "j", "k", "l", "b", "f", "m", "r"));
+
+    // Integer list
+    ArrayList<Integer> intList = new ArrayList<>();
+    intList.addAll(Arrays.asList(8, 4, 3, 18, 9, 7, 6, 12, 32, 17, 2, 1, 21, 5, 49));
+
+    // void initTestConditions() {
+    // }
+
+    // test for calculateVal
+
+    // test for insert
+
+    // test for sortByFrequency
+    
+    // test for encode
+    
+    // test for decode
+  }
+}

@@ -1,0 +1,51 @@
+//import tester.Tester;
+
+// to represent a list of courses
+interface ILoCourse {
+  
+}
+
+// represents an empty list of courses
+class MtLoCourse implements ILoCourse {
+  
+}
+
+// represents a list of courses with one or more elements
+class ConsLoCourse implements ILoCourse {
+  IPerson first;
+  ILoCourse rest;
+  
+  ConsLoCourse(IPerson first, ILoCourse rest) {
+    this.first = first;
+    this.rest = rest;
+  }
+}
+
+// to represent one of instructor or student
+interface IPerson {
+  
+}
+
+// to represent an instructor
+class Instructor implements IPerson {
+  String name;
+  ILoCourse courses;
+  
+  Instructor(String name, ILoCourse courses) {
+    this.name = name;
+    this.courses = courses;
+  }
+}
+
+// to represent a student
+class Student implements IPerson {
+  String name;
+  int idNum;
+  ILoCourse courses;
+  
+  Student(String name, int idNum, ILoCourse courses) {
+    this.name = name;
+    this.idNum = idNum;
+    this.courses = courses;
+  }
+}

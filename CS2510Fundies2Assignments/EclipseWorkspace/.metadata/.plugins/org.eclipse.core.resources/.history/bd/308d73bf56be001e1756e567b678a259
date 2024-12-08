@@ -1,0 +1,181 @@
+//import tester.Tester;
+
+//represents a list of words
+interface ILoWord {
+
+  // produces a new list, with words sorted in alphabetical order,
+  // treating all Strings as if they were given in all lower case.
+  ILoWord sort();
+  
+  //determines whether this list of IWords has words sorted in alphabetical order, 
+  //in a case-insensitive way.
+  boolean isSorted();
+  
+  //takes this list of IWords and a given list of IWords, and produces a list where the first, 
+  //third, fifth... elements are from this list, and the second, fourth, sixth... elements 
+  //are from the given list.
+  ILoWord interleave();
+  
+  //merges this sorted list of IWords and a given sorted list of IWords, and produces a sorted 
+  //list of IWords that contains all items in both original lists, including duplicates, treating 
+  //all Strings as if they were given in all lower case.
+  ILoWord merge();
+  
+  //takes in a String of length 1 and produces an ILoWord where any active words in this ILoWord 
+  //are reduced by removing the first letter only if the given string matches the first letter.
+  ILoWord checkAndReduce();
+  
+  //takes in an IWord and produces an ILoWord that is like this ILoWord but with the given 
+  //IWord added at the end.
+  ILoWord addToEnd();
+
+}
+
+//represents an empty list of words
+class MtLoWord implements ILoWord {
+  
+  /*- TEMPLATE
+  FIELDS:
+  
+  METHODS
+  ... this.sort() ...                 -- ILoWord
+  ... this.isSorted() ...             -- boolean
+  ... this.interleave.() ...          -- ILoWord
+  ... this.merge() ...                -- ILoWord
+  ... this.checkAndReduce() ...       -- ILoWord
+  */
+  
+  //produces a new list, with words sorted in alphabetical order,
+  // treating all Strings as if they were given in all lower case.
+  public ILoWord sort() {
+    return this;
+  }
+  
+  //determines whether this list of IWords has words sorted in alphabetical order, 
+  //in a case-insensitive way.
+  public boolean isSorted() {
+    return true;
+  }
+  
+  //takes this list of IWords and a given list of IWords, and produces a list where the first, 
+  //third, fifth... elements are from this list, and the second, fourth, sixth... elements 
+  //are from the given list.
+  public ILoWord interleave() {
+    return this;
+  }
+  
+  //merges this sorted list of IWords and a given sorted list of IWords, and produces a sorted 
+  //list of IWords that contains all items in both original lists, including duplicates, treating 
+  //all Strings as if they were given in all lower case.
+  public ILoWord merge() {
+    return this;
+  }
+  
+  //takes in a String of length 1 and produces an ILoWord where any active words in this ILoWord 
+  //are reduced by removing the first letter only if the given string matches the first letter.
+  public ILoWord checkAndReduce() {
+    return this;
+  }
+  
+  //takes in an IWord and produces an ILoWord that is like this ILoWord but with the given 
+  //IWord added at the end.
+  public ILoWord addToEnd() {
+    return this;
+  }
+
+}
+
+class ConsLoWord implements ILoWord {
+  IWord first;
+  ILoWord rest;
+
+  ConsLoWord(IWord first, ILoWord rest) {
+    this.first = first;
+    this.rest = rest;
+  }
+  
+  /*- TEMPLATE
+  FIELDS:
+  ... this.first ...                   -- IWord
+  ... this.rest ...                    -- ILoWord
+  
+  METHODS
+  ... this.sort() ...                 -- ILoWord
+  ... this.isSorted() ...             -- boolean
+  ... this.interleave() ...           -- ILoWord
+  ... this.merge() ...                -- ILoWord
+  ... this.checkAndReduce() ...       -- ILoWord
+  */
+  
+  //produces a new list, with words sorted in alphabetical order,
+  // treating all Strings as if they were given in all lower case.
+  public ILoWord sort() {
+    return this;
+  }
+  
+  //determines whether this list of IWords has words sorted in alphabetical order, 
+  //in a case-insensitive way.
+  public boolean isSorted() {
+    return false;
+  }
+  
+  //takes this list of IWords and a given list of IWords, and produces a list where the first, 
+  //third, fifth... elements are from this list, and the second, fourth, sixth... elements 
+  //are from the given list.
+  public ILoWord interleave() {
+    return this;
+  }
+  
+  //merges this sorted list of IWords and a given sorted list of IWords, and produces a sorted 
+  //list of IWords that contains all items in both original lists, including duplicates, treating 
+  //all Strings as if they were given in all lower case.
+  public ILoWord merge() {
+    return this;
+  }
+  
+  //takes in a String of length 1 and produces an ILoWord where any active words in this ILoWord 
+  //are reduced by removing the first letter only if the given string matches the first letter.
+  public ILoWord checkAndReduce() {
+    return this;
+  }
+
+}
+
+//represents a word in the ZType game
+interface IWord {
+  
+}
+
+
+//represents an active word in the ZType game
+class ActiveWord implements IWord {
+  String word;
+  int x;
+  int y;
+
+  ActiveWord(String word, int x, int y) {
+    this.word = word;
+    this.x = x;
+    this.y = y;
+  }
+  
+}
+
+//represents an inactive word in the ZType game
+class InactiveWord implements IWord {
+  String word;
+  int x;
+  int y;
+
+  InactiveWord(String word, int x, int y) {
+    this.word = word;
+    this.x = x;
+    this.y = y;
+  }
+  
+}
+
+//all examples and tests for ILoWord
+class ExamplesWordLists {
+
+}

@@ -1,0 +1,61 @@
+// import Tester.tester;
+
+// to represent ratios of ingredients in a cake in ounces
+class CakeRecipe {
+  double flour;
+  double sugar;
+  double eggs;
+  double butter;
+  double milk;
+
+  CakeRecipe(double flour, double sugar, double eggs, double butter, double milk) {
+    if (flour == sugar) {
+      this.flour = flour;
+      this.sugar = sugar;
+    }
+    else {
+      throw new IllegalArgumentException("Flour and sugar ratio not equal");
+    }
+
+    if (eggs == butter) {
+      this.eggs = eggs;
+      this.butter = butter;
+    }
+    else {
+      throw new IllegalArgumentException("Eggs and butter ratio not equal");
+    }
+
+    if ((eggs + milk) == sugar) {
+      this.milk = milk;
+    }
+    else {
+      throw new IllegalArgumentException("Eggs + milk ratio not equal to sugar ratio");
+    }
+
+  }
+
+  // NEW CONSTRUCTOR
+  CakeRecipe(double flour, double eggs, double milk) {
+    this(flour, flour, eggs, eggs, milk);
+  }
+
+  // NEW CONSTRUCTOR
+  CakeRecipe(double flour, double eggs, double milk, boolean areVolumes) {
+    if (areVolumes) {
+      this.flour = flour * 4.25;
+      this.sugar = this.flour;
+      this.eggs = eggs * 1.75;
+      this.butter = this.eggs;
+      this.milk = milk * 8;
+    }
+    else {
+      new CakeRecipe(flour, eggs, milk);
+    }
+  }
+}
+
+/*
+ * class Utils { double checkWeight(double ingr1, double ingr2, double max,
+ * String msg) { if (ingr1 == ingr2) { return ingr1; } else { throw new
+ * IllegalArgumentException(msg); } } }
+ */

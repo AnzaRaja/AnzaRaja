@@ -1,0 +1,46 @@
+import tester.*;
+import java.util.Random;
+import javalib.worldimages.*;
+import javalib.funworld.*;
+import java.awt.Color;
+
+class ZTypeWorld extends World {
+
+}
+
+interface ILoWord {
+
+}
+
+//represents an empty list of words
+class MtLoWord implements ILoWord {
+
+}
+
+class ConsLoWord implements ILoWord {
+  IWord first;
+  ILoWord rest;
+
+  ConsLoWord(IWord first, ILoWord rest) {
+    this.first = first;
+    this.rest = rest;
+  }
+}
+
+//represents a word in the ZType game
+interface IWord {
+  
+}
+
+//represents an active word in the ZType game
+class ActiveWord implements IWord {
+String word;
+int x;
+int y;
+
+ActiveWord(String word, int x, int y) {
+  this.word = word;
+  this.x = x;
+  this.y = y;
+}
+}

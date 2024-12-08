@@ -1,0 +1,28 @@
+
+// Represents a savings account
+class Savings extends Account {
+
+  double interest; // The interest rate
+
+  Savings(int accountNum, int balance, String name, double interest) {
+    super(accountNum, balance, name);
+    this.interest = interest;
+  }
+
+  //EFFECT: Withdraw the given amount
+  // Return the new balance where the minimum amount cannot be exceeded
+  public int withdraw(int amount) {
+    if (this.balance - amount >= 0) {
+      return this.balance - amount;
+    }
+    else {
+      throw new RuntimeException("Withdraw amount exceeds current savings balance");
+    }
+  }
+
+  // EFFECT: Deposit the given funds into this account
+  // Return the new balance
+  public int deposit(int funds) {
+    return this.balance + funds;
+  }
+}

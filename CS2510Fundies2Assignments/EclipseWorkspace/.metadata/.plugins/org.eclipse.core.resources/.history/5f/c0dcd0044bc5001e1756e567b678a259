@@ -1,0 +1,19 @@
+// import Tester.tester;
+
+// to represent ratios in a cake
+class CakeRecipe{
+  double flour;
+  double sugar;
+  double eggs;
+  double butter;
+  double milk;
+  
+  CakeRecipe(double flour, double sugar, double eggs, double butter, double milk) {
+    
+    this.flour = flour;
+    this.sugar = sugar;
+    this.eggs = eggs;
+    this.butter = butter;
+    this.milk = milk;
+  }
+}

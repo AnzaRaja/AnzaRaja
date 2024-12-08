@@ -1,0 +1,73 @@
+// to represent a picture
+interface IPicture {
+  
+}
+
+// to represent a simple shape
+class Shape implements IPicture {
+  String kind; // "circle", "square"
+  double size; // assume that width equals height
+  
+  Shape(String kind, double size) {
+    this.kind = kind;
+    this.size = size;
+  }
+}
+
+// to represent a combo shape
+class Combo implements IPicture {
+  String name; // describing the resulting picture
+  IOperation operation; // how the image was put together
+  
+  Combo(String name, IOperation operation) {
+    this.name = name;
+    this.operation = operation;
+  }
+}
+
+// to represent an operation
+interface IOperation {
+  
+}
+
+// to represent the scaling operation
+class Scale implements IOperation {
+  IPicture picture; // twice as large as the original
+  
+  Scale(IPicture picture) {
+    this.picture = picture;
+  }
+}
+
+// to represent the beside operation
+class Beside implements IOperation {
+  IPicture picture1; // picture1 to the left of picture2
+  IPicture picture2;
+  
+  Beside(IPicture picture1, IPicture picture2) {
+    this.picture1 = picture1;
+    this.picture2 = picture2;
+  }
+}
+
+// to represent the overlay operation
+class Overlay implements IOperation {
+  IPicture topPicture; // top-picture on top of bottom-picture
+  IPicture bottomPicture;
+  
+  Overlay(IPicture topPicture, IPicture bottomPicture) {
+    this.topPicture = topPicture;
+    this.bottomPicture = bottomPicture;
+  }
+}
+
+// to represent examples of pictures
+class ExamplesClass {
+  ExamplesClass () {}
+  
+  IPicture circle = new Shape("circle", 20);
+  IPicture square = new Shape("square", 30);
+  IPicture bigCircle = new Combo("big circle", new Scale(circle));
+  IPicture combo = new Combo("square on circle", new Overlay(square, circle));
+}
+

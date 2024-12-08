@@ -1,0 +1,122 @@
+import tester.Tester;
+
+// to represent ratios of ingredients in a cake in ounces
+class CakeRecipe {
+  double flour;
+  double sugar;
+  double eggs;
+  double butter;
+  double milk;
+
+  CakeRecipe(double flour, double sugar, double eggs, double butter, double milk) {
+    if (Math.abs(flour - sugar) < 0.0001) {
+      this.flour = flour;
+      this.sugar = sugar;
+    }
+    else {
+      throw new IllegalArgumentException("Flour and sugar ratio not equal");
+    }
+
+    if (Math.abs(eggs - butter) < 0.0001) {
+      this.eggs = eggs;
+      this.butter = butter;
+    }
+    else {
+      throw new IllegalArgumentException("Eggs and butter ratio not equal");
+    }
+
+    if (Math.abs((eggs + milk) - sugar) < 0.0001) {
+      this.milk = milk;
+    }
+    else {
+      throw new IllegalArgumentException("Eggs + milk ratio not equal to sugar ratio");
+    }
+
+  }
+
+  // NEW CONSTRUCTOR
+  CakeRecipe(double flour, double eggs, double milk) {
+    this(flour, flour, eggs, eggs, milk);
+  }
+
+  // NEW CONSTRUCTOR
+  CakeRecipe(double flour, double eggs, double milk, boolean areVolumes) {
+    if (areVolumes) {
+      this.flour = flour * 4.25;
+      this.sugar = this.flour;
+      this.eggs = eggs * 1.75;
+      this.butter = this.eggs;
+      if (Math.abs((this.eggs * 1.75) + (this.milk * 8)) < 0.0001) {
+        this.milk = milk * 8;
+      }
+      else {
+        throw new IllegalArgumentException("Converted eggs + milk ratio not equal to sugar ratio");
+      }
+    }
+    else {
+      new CakeRecipe(flour, eggs, milk);
+    }
+  }
+
+  // are these two recipes the same?
+  boolean sameRecipe(CakeRecipe other) {
+    return (Math.abs(this.flour - other.flour) < 0.0001)
+        && (Math.abs(this.eggs - other.eggs) < 0.0001)
+        && (Math.abs(this.milk - other.milk) < 0.0001);
+  }
+}
+
+// examples of cake recipes
+class ExamplesCakes {
+  ExamplesCakes() {
+
+  }
+
+  CakeRecipe cakeRecipe1 = new CakeRecipe(14, 14, 3, 3, 11);
+  CakeRecipe cakeRecipe2 = new CakeRecipe(19.2, 19.2, 4, 4, 15.2);
+  CakeRecipe cakeRecipe3 = new CakeRecipe(17.8, 17.8, 5.7, 5.7, 12.1);
+  CakeRecipe cakeRecipe4 = new CakeRecipe(7, 2, 5);
+  CakeRecipe cakeRecipe5 = new CakeRecipe(8.5, 5.1, 3.4);
+  //CakeRecipe cakeRecipe6 = new CakeRecipe(25.5, 5.25, 24, false);
+  CakeRecipe cakeRecipe7 = new CakeRecipe(7, 3, 4, true);
+ // CakeRecipe cakeRecipe8 = new CakeRecipe(10.5, 6.1, 4.4, true);
+  //CakeRecipe cakeRecipe9 = new CakeRecipe(25.7, 16.3, 9.4, false);
+  CakeRecipe cakeRecipe10 = new CakeRecipe(14, 3, 11);
+  //CakeRecipe cakeRecipe11 = new CakeRecipe(14, 3, 11, false);
+  CakeRecipe cakeRecipe13 = new CakeRecipe(15, 15, 4, 4, 11);
+
+  // test method for illegal argument exception
+  boolean testcheckConstuctorException(Tester t) {
+    return t.checkConstructorException(
+        new IllegalArgumentException("Flour and sugar ratio not equal"), "CakeRecipe", 15.0, 12.0,
+        9.0, 9.0, 3.0)
+        && t.checkConstructorException(
+            new IllegalArgumentException("Eggs and butter ratio not equal"), "CakeRecipe", 15.0,
+            15.0, 5.0, 8.0, 10.0)
+        && t.checkConstructorException(
+            new IllegalArgumentException("Eggs + milk ratio not equal to sugar ratio"),
+            "CakeRecipe", 11.0, 11.0, 6.0, 6.0, 30.0)
+        && t.checkConstructorException(
+            new IllegalArgumentException("Eggs + milk ratio not equal to sugar ratio"),
+            "CakeRecipe", 15.0, 3.0, 5.1)
+        && t.checkConstructorException(
+            new IllegalArgumentException("Converted eggs + milk ratio not equal to sugar ratio"),
+            "CakeRecipe", 10.0, 3.0, 8.0, true);
+    /*
+     * && t.checkConstructorException( new
+     * IllegalArgumentException("Eggs and butter ratio not equal"), "CakeRecipe",
+     * 15, 15, 4, 4, 11);
+     */
+  }
+
+  // test for sameRecipe
+  boolean testSameRecipe(Tester t) {
+    return t.checkExpect(this.cakeRecipe1.sameRecipe(this.cakeRecipe1), true)
+        && t.checkExpect(this.cakeRecipe1.sameRecipe(this.cakeRecipe2), false)
+        && t.checkExpect(this.cakeRecipe1.sameRecipe(this.cakeRecipe4), false)
+       // && t.checkExpect(this.cakeRecipe1.sameRecipe(this.cakeRecipe8), false)
+        && t.checkExpect(this.cakeRecipe1.sameRecipe(this.cakeRecipe10), true);
+       // && t.checkExpect(this.cakeRecipe1.sameRecipe(this.cakeRecipe11), false);
+  }
+
+}

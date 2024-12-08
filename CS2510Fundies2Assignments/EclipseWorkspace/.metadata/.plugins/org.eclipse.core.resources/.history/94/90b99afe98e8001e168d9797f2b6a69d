@@ -1,0 +1,59 @@
+import java.util.ArrayList;
+import tester.*;
+import javalib.impworld.*;
+import java.awt.Color;
+import javalib.worldimages.*;
+
+// represents a world class 
+class MinesweeperWorld extends World {
+  int rows;
+  int columns;
+  int mines;
+  ArrayList<ArrayList<Cells>> board;
+  
+  MinesweeperWorld(int rows, int columns, int mines, ArrayList<ArrayList<Cells>> board) {
+    if (rows > 4) {
+      this.rows = rows;
+    } else {
+      throw new IllegalArgumentException("rows have to be greater than 4");
+    }
+    if (columns > 4) {
+      this.columns = columns;
+    } else {
+      throw new IllegalArgumentException("columns have to be greater than 4");
+    }
+    if (mines < rows * columns) {
+      this.mines = mines;
+    } else {
+      throw new IllegalArgumentException("can't have more mines than cells available");
+    }
+    this.board = board;
+  }
+ 
+  public WorldScene makeScene() {
+    return null;
+  }
+  
+}
+
+// represents the minesweeper interface
+interface IMineSweeper {
+  
+}
+
+// represents a cell
+class Cells implements IMineSweeper {
+  boolean hasMine;
+  ArrayList<Cells> neighbours;
+  
+}
+
+// represents a grid
+class Grid implements IMineSweeper {
+  
+}
+
+// represents a mine
+class Mine implements IMineSweeper {
+  
+}

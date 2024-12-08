@@ -1,0 +1,43 @@
+import java.util.ArrayList;
+import java.util.function.Predicate;
+
+// Utils class
+class Utils {
+
+  // produce a new ArrayList<T> containing all the items of the given list that
+  // pass the predicate
+  <T> ArrayList<T> filter(ArrayList<T> arr, Predicate<T> pred) {
+    ArrayList<T> result = new ArrayList<>();
+
+    for (T item : arr) {
+      if (pred.test(item)) {
+        result.add(item);
+      }
+    }
+    return result;
+  }
+
+  // keeps all of the elements filter does not
+  <T> ArrayList<T> filterNot(ArrayList<T> arr, Predicate<T> pred) {
+    ArrayList<T> result = new ArrayList<>();
+
+    for (T item : arr) {
+      if (pred.test(item) == false) {
+        result.add(item);
+      }
+    }
+    return result;
+  }
+
+  // custom filter method
+  <T> ArrayList<T> customFilter(ArrayList<T> arr, Predicate<T> pred, boolean keepPassing) {
+    ArrayList<T> result = new ArrayList<>();
+
+    for (T item : arr) {
+      if (pred.test(item) == keepPassing) {
+        result.add(item);
+      }
+    }
+    return result;
+  }
+}

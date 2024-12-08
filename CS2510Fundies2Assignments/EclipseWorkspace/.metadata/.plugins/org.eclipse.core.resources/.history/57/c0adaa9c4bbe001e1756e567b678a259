@@ -1,0 +1,66 @@
+//import tester.Tester;
+
+
+//represents a list of words
+interface ILoWord {
+ 
+  
+}
+
+//represents an empty list of words
+class MtLoWord implements ILoWord {
+  
+}
+
+class ConsLoWord implements ILoWord {
+  IWord first;
+  ILoWord rest;
+
+  ConsLoWord(IWord first, ILoWord rest) {
+    this.first = first;
+    this.rest = rest;
+  }
+
+}
+
+//represents a word in the ZType game
+interface IWord {
+ 
+}
+
+//represents an active word in the ZType game
+class ActiveWord implements IWord {
+  String word;
+  int x;
+  int y;
+
+  ActiveWord(String word, int x, int y) {
+    this.word = word;
+    this.x = x;
+    this.y = y;
+  }
+
+}
+
+//represents an inactive word in the ZType game
+class InactiveWord implements IWord {
+  String word;
+  int x;
+  int y;
+
+
+  InactiveWord(String word, int x, int y) {
+    this.word = word;
+    this.x = x;
+    this.y = y;
+  }
+  
+}
+
+
+
+//all examples and tests for ILoWord
+class ExamplesWordLists {
+  
+
+}

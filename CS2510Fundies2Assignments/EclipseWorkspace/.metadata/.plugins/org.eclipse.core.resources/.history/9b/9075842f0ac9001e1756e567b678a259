@@ -1,0 +1,69 @@
+//import tester.Tester;
+
+// to represent a type of card
+interface ICard {
+  
+ /* //determines if the card is expired
+  boolean isExpired();
+  
+  //takes in a Card and determines if the two cards are the same card
+  boolean sameCard(ICard card);
+  
+  //takes in a double and subtracts the double from the balance
+  double makeTransaction(double amount);
+}*/
+
+abstract class ACard implements ICard {
+  int cnum;
+  int year;
+  int cvv;
+  
+  ACard(int cnum, int year, int cvv) {
+    this.cnum = cnum;
+    this.year = year;
+    this.cvv = cvv;
+  }
+}
+
+class CreditCard extends ACard {
+  String name;
+  
+  CreditCard(int cnum, int year, int cvv, String name) {
+  super(cnum, year, cvv);
+    this.name = name;
+  }
+ 
+}
+
+class DebitCard implements ICard {
+  String name;
+  double balance;
+  
+  DebitCard(int cnum, int year, int cvv, String name, double balance) {
+  super(cnum, year, cvv);
+    this.name = name;
+    this.balance = balance;
+  }
+  
+  public boolean isExpired() {
+    return false;
+  }
+}
+
+class GiftCard implements ICard {
+  int cnum;
+  int year;
+  int cvv;
+  double balance;
+  
+  GiftCard(int cnum, int year, int cvv, double balance) {
+    this.cnum = cnum;
+    this.year = year;
+    this.cvv = cvv;
+    this.balance = balance;
+  }
+  
+  public boolean isExpired() {
+    return false;
+  }
+}

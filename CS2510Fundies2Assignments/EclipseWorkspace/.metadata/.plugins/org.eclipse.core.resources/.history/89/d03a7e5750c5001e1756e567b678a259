@@ -1,0 +1,30 @@
+// import Tester.tester;
+
+// to represent ratios of ingredients in a cake in ounces
+class CakeRecipe{
+  double flour;
+  double sugar;
+  double eggs;
+  double butter;
+  double milk;
+  
+  CakeRecipe(double flour, double sugar, double eggs, double butter, double milk) {
+    
+    this.flour = flour;
+    this.sugar = sugar;
+    this.eggs = eggs;
+    this.butter = butter;
+    this.milk = milk;
+  }
+}
+
+class Utils {
+  double checkWeight(double ingr1, double ingr2, double max, String msg) {
+    if (ingr1 = ingr2) {
+      return ingr1;
+    }
+    else {
+      throw new IllegalArgumentException(msg);
+    }
+  }
+}

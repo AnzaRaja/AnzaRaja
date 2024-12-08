@@ -1,0 +1,6 @@
+import java.util.ArrayList;
+
+class Huffman {
+  ArrayList<String> letters;
+  ArrayList<Integer> frequencies;
+}

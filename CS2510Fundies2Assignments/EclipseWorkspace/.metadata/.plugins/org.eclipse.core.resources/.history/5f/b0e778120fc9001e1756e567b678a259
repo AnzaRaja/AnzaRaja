@@ -1,0 +1,116 @@
+//import tester.Tester;
+
+abstract class ACard implements ICard {
+  int cnum;
+  int year;
+  int cvv;
+
+  ACard(int cnum, int year, int cvv) {
+    this.cnum = cnum;
+    this.year = year;
+    this.cvv = cvv;
+  }
+  
+  public boolean isExpired() {
+   return this.year < 24;
+}
+  
+  public abstract boolean sameCard(ICard other); //can't put in abstract class
+  
+  public boolean sameCreditCard(CreditCard other) {
+    return false;
+  }
+    
+  }
+
+class CreditCard extends ACard {
+  String name;
+
+  CreditCard(int cnum, int year, int cvv, String name) {
+    super(cnum, year, cvv);
+    this.name = name;
+  }
+  
+  public boolean checkNmbers(int cnum, int year, int cvv) {
+    return this.cnum == cnum
+        && this.year == year
+        && this.cvv == cvv;
+  }
+  
+  public boolean sameCard(ICard other) {
+    return other.sameCreditCard(this);
+  }
+  
+  public boolean sameCreditCard(CreditCard other) {
+    return other.checkNumbers(this.cnum, this.cvv, this.year)
+        && this.name.equals(other.name);
+  }
+}
+
+class DebitCard extends ACard {
+  String name;
+  double balance;
+
+  DebitCard(int cnum, int year, int cvv, String name, double balance) {
+    super(cnum, year, cvv);
+    this.name = name;
+    this.balance = balance;
+  }
+}
+
+class GiftCard extends ACard {
+  double balance;
+
+  GiftCard(int cnum, int year, int cvv, double balance) {
+    super(cnum, year, cvv);
+    this.balance = balance;
+  }
+}
+
+class utils {
+
+  int validCnum(int cnum) {
+    if (cnum >= 10000 && cnum <= 99999) {
+      return cnum;
+    }
+    else {
+      throw new IllegalArgumentException("Cnum is not valid");
+    }
+  }
+
+  int validYear(int year) {
+      if (year)
+    }
+
+  int validYear(int cvv) {
+    if (cvv >= 100 && cvv <= 899) {
+      return cvv;
+    }
+    else {
+      throw new IllegalArgumentException("CVV is not valid");
+    }
+  }
+  
+  int validBalance(double balance) {
+    
+  }
+
+  int validNumber(int num, int upper, int lower, String msg) {
+    
+  }
+       
+ }
+
+//to represent a type of card
+  interface ICard {
+
+    /*
+     * //determines if the card is expired boolean isExpired();
+     * 
+     * //takes in a Card and determines if the two cards are the same card boolean
+     * sameCard(ICard card);
+     * 
+     * //takes in a double and subtracts the double from the balance double
+     * makeTransaction(double amount); }
+     */
+}

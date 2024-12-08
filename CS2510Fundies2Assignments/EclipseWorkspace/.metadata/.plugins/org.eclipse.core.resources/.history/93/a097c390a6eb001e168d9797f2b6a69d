@@ -1,0 +1,167 @@
+import java.util.ArrayList;
+import tester.*;
+import javalib.impworld.*;
+import java.awt.Color;
+import javalib.worldimages.*;
+
+// represents a world class 
+class MinesweeperWorld extends World {
+  int rows;
+  int columns;
+  int mines;
+  ArrayList<ArrayList<Cells>> board;
+
+  MinesweeperWorld(int rows, int columns, int mines) {
+    if (rows > 4) {
+      this.rows = rows;
+    }
+    else {
+      throw new IllegalArgumentException("rows have to be greater than 4");
+    }
+    if (columns > 4) {
+      this.columns = columns;
+    }
+    else {
+      throw new IllegalArgumentException("columns have to be greater than 4");
+    }
+    if (mines <= rows * columns) {
+      this.mines = mines;
+    }
+    else {
+      throw new IllegalArgumentException("can't have more mines than cells available");
+    }
+    this.board = new ArrayList<ArrayList<Cells>>();
+    this.makeBoard();
+  }
+
+  // draws the board
+  public WorldScene makeScene() {
+    return new WorldScene(rows, columns);
+  }
+
+  // draws the starting board with the given rows and columns
+  public void makeBoard() {
+    // ArrayList<ArrayList<Cells>> board1 = new ArrayList<ArrayList<Cells>>();
+    for (int i = 0; i < this.rows; i++) {
+      ArrayList<Cells> curRow = new ArrayList<Cells>();
+      for (int j = 0; j < this.columns; j++) {
+        curRow.add(new Cells(false, new ArrayList<Cells>()));
+      }
+      board.add(curRow);
+    }
+  }
+
+  // determines the list of neighbors of this cell
+  public ArrayList<Cells> getNeighbor() {
+    // return new ArrayList<Cells>(get()
+    for (int i = 0; i < this.rows; i++) {
+      for (int j = 0; j < this.columns; j++) {
+        if (i != 0 && i != i - 1 && j != 0 && j != j - 1) { // not a t, b, l, r
+          board.get(i).get(j).updateCell(board.get(i - 1).get(j)); // gets top
+          board.get(i).get(j).updateCell(board.get(i + 1).get(j)); // gets bottom
+          board.get(i).get(j).updateCell(board.get(i).get(j - 1)); // gets left
+          board.get(i).get(j).updateCell(board.get(i).get(j + 1)); // gets right
+          board.get(i).get(j).updateCell(board.get(i - 1).get(j + 1)); // gets top right
+          board.get(i).get(j).updateCell(board.get(i - 1).get(j - 1)); // gets top left
+          board.get(i).get(j).updateCell(board.get(i + 1).get(j + 1)); // gets bottom right
+          board.get(i).get(j).updateCell(board.get(i + 1).get(j - 1)); // gets bottom left
+
+        }
+        if (i == 0 && j != 0 && j != j - 1) { // is a top and not a left and not a right
+          board.get(i).get(j).updateCell(board.get(i + 1).get(j)); // gets bottom
+          board.get(i).get(j).updateCell(board.get(i).get(j - 1)); // gets left
+          board.get(i).get(j).updateCell(board.get(i).get(j + 1)); // gets right
+          board.get(i).get(j).updateCell(board.get(i + 1).get(j + 1)); // gets bottom right
+          board.get(i).get(j).updateCell(board.get(i + 1).get(j - 1)); // gets bottom left
+
+        }
+        if (i == i - 1 && j != 0 && j != j - 1) { // is a bottom and not a left and not a right
+          board.get(i).get(j).updateCell(board.get(i - 1).get(j)); // gets top
+          board.get(i).get(j).updateCell(board.get(i).get(j - 1)); // gets left
+          board.get(i).get(j).updateCell(board.get(i).get(j + 1)); // gets right
+          board.get(i).get(j).updateCell(board.get(i - 1).get(j + 1)); // gets top right
+          board.get(i).get(j).updateCell(board.get(i - 1).get(j - 1)); // gets top left
+
+        }
+        if (j == 0 && i != 0 && i != i - 1) { // is a left and not a top and not a bottom
+          board.get(i).get(j).updateCell(board.get(i - 1).get(j)); // gets top
+          board.get(i).get(j).updateCell(board.get(i + 1).get(j)); // gets bottom
+          board.get(i).get(j).updateCell(board.get(i).get(j + 1)); // gets right
+          board.get(i).get(j).updateCell(board.get(i - 1).get(j + 1)); // gets top right
+          board.get(i).get(j).updateCell(board.get(i + 1).get(j + 1)); // gets bottom right
+
+        }
+        if (j == j - 1 && i != 0 && i != i - 1) { // is a right and not a top and not a bottom
+          board.get(i).get(j).updateCell(board.get(i - 1).get(j)); // gets top
+          board.get(i).get(j).updateCell(board.get(i + 1).get(j)); // gets bottom
+          board.get(i).get(j).updateCell(board.get(i).get(j - 1)); // gets left
+          board.get(i).get(j).updateCell(board.get(i - 1).get(j - 1)); // gets top left
+          board.get(i).get(j).updateCell(board.get(i + 1).get(j + 1)); // gets bottom right
+
+        }
+        if (i == 0 && j == 0) { // top and left
+          board.get(i).get(j).updateCell(board.get(i + 1).get(j - 1)); // gets top left
+
+        }
+        if (i == 0 && j == j - 1) { // top and right
+          board.get(i).get(j).updateCell(board.get(i - 1).get(j + 1)); // gets bottom right
+
+        }
+        if (i == i - 1 && j == 0) { // bottom and left
+          board.get(i).get(j).updateCell(board.get(i + 1).get(j - 1)); // gets bottom left
+        }
+        if (i == i - 1 && j == j - 1) { // bottom and right
+        }
+      }
+    }
+  }
+
+  /*
+   * int rowCount = 0; while (rowCount < rows) { ArrayList<Cells> curRow = new
+   * ArrayList<Cells>(); int colCount = 0; while (colCount < columns) {
+   * curRow.add(new Cells(false, new ArrayList<Cells>())); colCount++; }
+   * board.add(curRow); rowCount++; } }
+   */
+}
+
+// represents the minesweeper interface
+interface IMineSweeper {
+
+}
+
+// represents a cell
+class Cells implements IMineSweeper {
+  boolean hasMine;
+  ArrayList<Cells> neighbors;
+
+  Cells(boolean hasMine, ArrayList<Cells> neighbors) {
+    this.hasMine = hasMine;
+    this.neighbors = new ArrayList<Cells>();
+  }
+
+  // updates the list of neighbors
+  public void updateCell(Cells curCell) {
+    this.neighbors.add(curCell);
+  }
+}
+
+// examples class
+class MineSweeperExamples {
+
+  ArrayList<Cells> row;
+  ArrayList<Cells> col;
+  MinesweeperWorld board1;
+
+  void initTestConditions() {
+    ArrayList<Cells> row = new ArrayList<Cells>();
+    ArrayList<Cells> col = new ArrayList<Cells>();
+    board1 = new MinesweeperWorld(6, 6, 3);
+    this.board1.makeBoard();
+  }
+
+  boolean testMakeBoard(Tester t) {
+    initTestConditions();
+    // t.checkExpect(board1.board.size(), 5)
+    return t.checkExpect(board1.rows, 6);
+  }
+}

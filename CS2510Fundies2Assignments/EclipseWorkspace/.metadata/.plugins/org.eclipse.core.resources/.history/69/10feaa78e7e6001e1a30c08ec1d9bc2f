@@ -1,0 +1,101 @@
+import java.util.ArrayList;
+//import tester.Tester;
+import java.util.Collections;
+import java.util.Comparator;
+
+// to represent an tree
+interface Tree {
+
+  // gets the total value of a node
+  public int calculateVal();
+
+  /*
+   * //does this string contain any letter not in the alphabet. 0 is false and 1
+   * is true. ArrayList<Boolean> encode(String word);
+   */
+}
+
+// to represent the Huffman class
+class Huffman {
+  ArrayList<String> letters;
+  ArrayList<Integer> frequencies;
+
+  Huffman(ArrayList<String> letters, ArrayList<Integer> frequencies) {
+    if (letters.size() != frequencies.size()) {
+      throw new IllegalArgumentException("lists are different lengths");
+    }
+    else {
+      if (letters.size() < 2) {
+        throw new IllegalArgumentException("length of list of strings < 2");
+      }
+      else {
+        this.letters = letters;
+        this.frequencies = frequencies;
+      }
+    }
+    ArrayList<Leaf> pairs = new ArrayList<Leaf>();
+
+    // makes a list of pairs
+    for (int i = 0; i < letters.size(); i = i + 1) {
+      pairs.add(new Leaf(letters.get(i), frequencies.get(i)));
+    }
+
+    // sorts the list of pairs according to the frequency
+    Collections.sort(pairs, new SortByFrequency());
+  
+  
+  // builds the forest
+  for (int i = 0; i < letters.size(); i = i + 1) {
+    new HuffmanNode(calculateVal(), i, i + 1)
+  }
+  }
+}
+
+// sorts the arrayList by frequency in ascending order
+class SortByFrequency implements Comparator<Leaf> {
+
+  public int compare(Leaf t1, Leaf t2) {
+    return t1.frequency - t2.frequency;
+  }
+}
+
+// to represent a single node
+class HuffmanNode implements Tree {
+  int total;
+  Tree left;
+  Tree right;
+
+  HuffmanNode(int total, Tree left, Tree right) {
+    total = this.calculateVal();
+    this.left = left;
+    this.right = right;
+  }
+
+  // gets the total value of a node
+  public int calculateVal() {
+    return this.left.calculateVal() + this.right.calculateVal();
+  }
+}
+
+// to represent a leaf
+class Leaf implements Tree {
+  String data;
+  int frequency;
+
+  Leaf(String data, int frequency) {
+    this.data = data;
+    this.frequency = frequency;
+  }
+
+  // gets the total value of a node
+  public int calculateVal() {
+    return this.frequency;
+  }
+
+  // sorts the list according to the frequency
+}
+
+/*
+ * // does this string contain any letter not in the alphabet. 0 is false and 1
+ * is true. ArrayList<Boolean> encode(String word) { return this; }
+ */

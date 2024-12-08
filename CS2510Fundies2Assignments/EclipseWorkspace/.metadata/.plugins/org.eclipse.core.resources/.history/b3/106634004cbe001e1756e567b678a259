@@ -1,0 +1,86 @@
+//import tester.Tester;
+
+//represents a list of words
+interface ILoWord {
+
+  // produces a new list, with words sorted in alphabetical order,
+  // treating all Strings as if they were given in all lower case.
+  ILoWord sort();
+
+}
+
+//represents an empty list of words
+class MtLoWord implements ILoWord {
+
+}
+
+class ConsLoWord implements ILoWord {
+  IWord first;
+  ILoWord rest;
+
+  ConsLoWord(IWord first, ILoWord rest) {
+    this.first = first;
+    this.rest = rest;
+  }
+  
+  //produces a new list, with words sorted in alphabetical order,
+  // treating all Strings as if they were given in all lower case.
+  public ILoWord sort() {
+    return this;
+  }
+
+}
+
+//represents a word in the ZType game
+interface IWord {
+
+}
+
+class String {
+  String word;
+
+  String(String word) {
+    this.word = word;
+  }
+
+  // does this String come before the given String lexicographically?
+  // produce value < 0 --- if this String comes before that String
+  // produce value zero --- if this String is the same as that String
+  // produce value > 0 --- if this String comes after that String
+  int compareTo(String that) {
+    return 0;
+  }
+}
+
+//represents an active word in the ZType game
+class ActiveWord implements IWord {
+  String word;
+  int x;
+  int y;
+
+  ActiveWord(String word, int x, int y) {
+    this.word = word;
+    this.x = x;
+    this.y = y;
+  }
+
+}
+
+//represents an inactive word in the ZType game
+class InactiveWord implements IWord {
+  String word;
+  int x;
+  int y;
+
+  InactiveWord(String word, int x, int y) {
+    this.word = word;
+    this.x = x;
+    this.y = y;
+  }
+
+}
+
+//all examples and tests for ILoWord
+class ExamplesWordLists {
+
+}
